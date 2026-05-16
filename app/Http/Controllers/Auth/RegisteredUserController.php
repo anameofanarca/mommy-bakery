@@ -29,23 +29,50 @@ class RegisteredUserController extends Controller
      * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+{
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        'email' => [
+            'required',
+            'string',
+            'email',
+            'max:255',
+            'regex:/^[a-zA-Z0-9._%+-]+@gmail\.com$/',
+            'unique:users',
+        ],
 
-        event(new Registered($user));
+        'password' => [
+            'required',
+            'confirmed',
+            'min:8',
+            'regex:/[A-Z]/',
+            'regex:/[0-9]/',
+            'regex:/[@$!%*#?&^]/',
+        ],
+    ], [
 
-        Auth::login($user);
+        'email.regex' =>
+            'Email harus menggunakan @gmail.com',
 
-        return redirect(route('dashboard', absolute: false));
-    }
+        'password.min' =>
+            'Password minimal 8 karakter.',
+
+        'password.regex' =>
+            'Password harus mengandung huruf besar, angka, dan simbol.',
+
+        'password.confirmed' =>
+            'Konfirmasi password tidak cocok.',
+    ]);
+
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+    ]);
+
+    Auth::login($user);
+
+    return redirect()->route('otp');
+}
 }
