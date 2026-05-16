@@ -8,6 +8,7 @@ use App\Http\Controllers\OrderPaymentController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminPaymentController;
+use App\Http\Controllers\Auth\OtpResetPasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -88,3 +89,11 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 require __DIR__.'/auth.php';
+
+/*
+|--------------------------------------------------------------------------
+| OTP RESET PASSWORD ROUTES
+|--------------------------------------------------------------------------
+*/
+Route::post('/otp/send', [OtpResetPasswordController::class, 'sendOtp'])->name('otp.send');
+Route::post('/otp/verify', [OtpResetPasswordController::class, 'verifyOtpAndReset'])->name('otp.verify');
