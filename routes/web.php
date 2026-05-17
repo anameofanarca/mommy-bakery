@@ -39,4 +39,5 @@ Route::view('/', 'welcome');
 //     return view('auth.auth-otp'); // sesuaikan dengan nama file otp kamu
 // });
 
+
 require __DIR__.'/auth.php';

@@ -38,9 +38,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Libre+Caslon+Text:wght@400;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body class="bg-[#0f0f0f] overflow-x-hidden">
+<body class="bg-[#0f0f0f] overflow-x-hidden overflow-y-auto">
 
-<div class="min-h-screen flex items-center justify-center relative overflow-hidden">
+<div class="min-h-screen flex items-center justify-center relative overflow-hidden py-12 px-4">
 
     <div class="absolute inset-0 bg-cover bg-center"
          style="background-image: url('/images/Background-register.png');"></div>
@@ -51,6 +51,14 @@
 
     <div class="relative bg-[#f6eee3]/95 backdrop-blur-md w-[440px] rounded-2xl shadow-2xl p-10 z-10 border border-white/20
                 animate-fadeUp hover:scale-[1.02] transition duration-300">
+
+        <a href="{{ url('/') }}" 
+           class="absolute top-4 right-4 text-gray-500 hover:text-primary transition duration-200 hover:scale-110 p-1 rounded-full hover:bg-black/5 z-20"
+           title="Kembali ke Beranda">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </a>
 
         @if (session('status'))
             <div class="flex justify-center mb-6">

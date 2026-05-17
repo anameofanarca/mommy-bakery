@@ -40,7 +40,7 @@
 
         <h1 class="text-center text-2xl font-libreCaslon text-darkBrown font-semibold">Mommy Catering</h1>
         <h2 class="text-center text-md font-beVietnam text-primary font-semibold mt-4">Verifikasi Kode OTP</h2>
-        <p class="text-center text-xs text-gray-600 mt-1 mb-6 font-beVietnam leading-relaxed px-2">Masukkan 6 digit kode yang telah kami kirimkan ke nomor WhatsApp Anda.</p>
+        <p class="text-center text-xs text-gray-600 mt-1 mb-6 font-beVietnam leading-relaxed px-2">Masukkan 6 digit kode yang telah kami kirimkan ke akun email Anda.</p>
 
         <form method="POST" action="/otp-verify" class="space-y-6">
             @csrf
