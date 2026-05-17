@@ -137,7 +137,7 @@
 
             <!-- FORGOT -->
             <div class="flex justify-end">
-                <a href="#" class="text-sm text-primary font-semibold hover:underline font-beVietnam">
+                <a href="{{ route('password.request') }}" class="text-sm text-primary font-semibold hover:underline font-beVietnam">
                     Lupa kata sandi?
                 </a>
             </div>
