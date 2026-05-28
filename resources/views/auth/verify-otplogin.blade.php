@@ -164,13 +164,11 @@
         </form>
 
         <!-- FOOTER -->
-        <p class="text-center text-sm mt-6
-                  text-textDark font-beVietnam">
+        <p class="text-center text-sm mt-6text-textDark font-beVietnam">
 
             Bermasalah dengan nomor Anda?
 
-            <a href="#"
-               class="text-primary font-semibold hover:underline">
+            <a href="#" class="text-primary font-semibold hover:underline">
                 Hubungi Bantuan
             </a>
 

@@ -1,99 +1,43 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\CheckoutController;
-use App\Http\Controllers\OrderPaymentController;
-use App\Http\Controllers\WhatsAppController;
-use App\Http\Controllers\Admin\AdminOrderController;
-use App\Http\Controllers\Admin\AdminPaymentController;
-use App\Http\Controllers\Auth\OtpResetPasswordController;
 
-/*
-|--------------------------------------------------------------------------
-| LANDING PAGE
-|--------------------------------------------------------------------------
-*/
-Route::get('/', function () {
-    return view('welcome'); // 👈 landing page kamu
-});
+// HOME PAGE
+Route::view('/', 'welcome');
 
-/*
-|--------------------------------------------------------------------------
-| PRODUCTS
-|--------------------------------------------------------------------------
-*/
-Route::get('/products', [ProductController::class, 'index']);
-Route::get('/products/{product}', [ProductController::class, 'show']);
 
-/*
-|--------------------------------------------------------------------------
-| CHECKOUT & ORDER FLOW
-|--------------------------------------------------------------------------
-*/
-Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+// //BUAT CEK LOCALHOST AJAAAAAAAAAA
+// // cek tampilan Lupa Kata Sandi 
+// Route::get('/cek-forgot', function () {
+//     return view('auth.forgot-password'); 
+// });
 
-Route::get('/orders/{order}/payment', [OrderPaymentController::class, 'show'])
-    ->name('orders.payment.show');
+// // cek setelah email berhasil terkirim
+// Route::get('/cek-forgot-sukses', function () {
+//     session()->flash('status', 'We have emailed your password reset link!');
+//     return view('auth.forgot-password');
+// });
 
-Route::post('/orders/{order}/payment-proof', [OrderPaymentController::class, 'uploadProof'])
-    ->name('orders.payment.proof');
+// // cek tampilan Atur ulang kata sandi 
+// Route::get('/cek-reset', function () {
+//     return view('auth.reset-password', ['request' => request()]);
+// });
 
-Route::get('/orders/{order}/whatsapp', [WhatsAppController::class, 'redirect'])
-    ->name('orders.whatsapp');
+// // cek setelah kata sandi berhasil diubah
+// Route::get('/cek-reset-sukses', function () {
+//     // Memaksa session status bernilai 'password-updated' agar blade mendeteksi kondisi sukses
+//     session()->flash('status', 'password-updated');
+    
+//     // Membuat object request dummy agar variable $request tidak error/undefined di blade
+//     $dummyRequest = request();
+    
+//     return view('auth.reset-password', ['request' => $dummyRequest]);
+// });
 
-/*
-|--------------------------------------------------------------------------
-| ADMIN (ONLY AUTH)
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth'])->prefix('admin')->group(function () {
+// // cek halaman OTP 
+// Route::get('/cek-otp', function () {
+//     return view('auth.auth-otp'); // sesuaikan dengan nama file otp kamu
+// });
 
-    Route::get('/orders', [AdminOrderController::class, 'index'])
-        ->name('admin.orders.index');
 
-    Route::get('/orders/{order}', [AdminOrderController::class, 'show'])
-        ->name('admin.orders.show');
-
-    Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])
-        ->name('admin.orders.status');
-
-    Route::patch('/payments/{payment}/verify', [AdminPaymentController::class, 'verify'])
-        ->name('admin.payments.verify');
-});
-
-/*
-|--------------------------------------------------------------------------
-| DASHBOARD
-|--------------------------------------------------------------------------
-*/
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-/*
-|--------------------------------------------------------------------------
-| PROFILE
-|--------------------------------------------------------------------------
-*/
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-/*
-|--------------------------------------------------------------------------
-| AUTH ROUTES (LOGIN / REGISTER)
-|--------------------------------------------------------------------------
-*/
 require __DIR__.'/auth.php';
-
-/*
-|--------------------------------------------------------------------------
-| OTP RESET PASSWORD ROUTES
-|--------------------------------------------------------------------------
-*/
-Route::post('/otp/send', [OtpResetPasswordController::class, 'sendOtp'])->name('otp.send');
-Route::post('/otp/verify', [OtpResetPasswordController::class, 'verifyOtpAndReset'])->name('otp.verify');
