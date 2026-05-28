@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
 
         *{
@@ -410,6 +411,29 @@
     </style>
 </head>
 <body>
+    @if(session('success'))
+<div 
+    x-data="{ show: true }"
+    x-init="setTimeout(() => show = false, 1800)"
+    x-show="show"
+    x-transition
+    style="
+        position:fixed;
+        top:18px;
+        right:18px;
+        background:#22c55e;
+        color:white;
+        padding:8px 14px;
+        border-radius:8px;
+        box-shadow:0 6px 18px rgba(0,0,0,0.1);
+        z-index:9999;
+        font-size:13px;
+        font-weight:500;
+    "
+>
+    Login berhasil
+</div>
+@endif
 
     <!-- NAVBAR -->
 
@@ -429,9 +453,71 @@
             </div>
 
             <div class="icons">
-                <span>⌕</span>
-                <span>🛒</span>
-                <span>👤</span>
+                <a href="/products" title="Cari produk">⌕</a>
+                <a href="#" title="Keranjang" id="cart-icon">🛒</a>
+                @auth
+
+                <div x-data="{ open: false }" style="position:relative;">
+
+                    <button 
+                        @click="open = !open"
+                        style="
+                            background:none;
+                            border:none;
+                            font-size:22px;
+                            cursor:pointer;
+                        "
+                    >
+                        👤
+                    </button>
+
+                    <div
+                        x-show="open"
+                        @click.away="open = false"
+                        x-transition
+                        style="
+                            position:absolute;
+                            right:0;
+                            top:40px;
+                            width:140px;
+                            background:white;
+                            border-radius:12px;
+                            overflow:hidden;
+                            box-shadow:0 10px 25px rgba(0,0,0,0.1);
+                            z-index:999;
+                        "
+                    >
+
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+
+                            <button
+                                type="submit"
+                                style="
+                                    width:100%;
+                                    padding:12px 16px;
+                                    border:none;
+                                    background:white;
+                                    text-align:left;
+                                    cursor:pointer;
+                                    color:#c0392b;
+                                    font-size:14px;
+                                "
+                            >
+                                Logout
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+                @else
+
+                <a href="{{ route('login') }}" title="Login">👤</a>
+
+                @endauth
             </div>
 
         </div>

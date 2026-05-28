@@ -69,10 +69,11 @@ class RegisteredUserController extends Controller
         'name' => $request->name,
         'email' => $request->email,
         'password' => Hash::make($request->password),
+        'phone' => $request->phone,
     ]);
 
-    Auth::login($user);
+    return redirect()->route('login')
+        ->with('success', 'Akun berhasil dibuat! Silakan login.');
 
-    return redirect()->route('otp');
 }
 }

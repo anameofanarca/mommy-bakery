@@ -115,118 +115,52 @@
         </div>
 
         <!-- FORM -->
-        <form method="POST" action="" class="mt-8">
+        <form method="POST" action="{{ route('otp.verify-login') }}" class="mt-8" id="otpForm">
             @csrf
+
+            <!-- Error message -->
+            @error('otp')
+                <p class="text-red-500 text-sm text-center mb-4 font-beVietnam">{{ $message }}</p>
+            @enderror
+
+            <!-- Hidden input yang akan diisi JS -->
+            <input type="hidden" name="otp" id="otpValue">
 
             <!-- OTP INPUT -->
             <div class="flex justify-center gap-3">
-
-                <input type="text" maxlength="1"
-                    class="otp-input w-14 h-14 rounded-xl
-                    border border-[#d9cfc3] bg-[#f9f3ea]
-                    text-center text-xl font-semibold text-primary
-                    focus:outline-none focus:ring-2 focus:ring-primary
-                    transition duration-200">
-
-                <input type="text" maxlength="1"
-                    class="otp-input w-14 h-14 rounded-xl
-                    border border-[#d9cfc3] bg-[#f9f3ea]
-                    text-center text-xl font-semibold text-primary
-                    focus:outline-none focus:ring-2 focus:ring-primary
-                    transition duration-200">
-
-                <input type="text" maxlength="1"
-                    class="otp-input w-14 h-14 rounded-xl
-                    border border-[#d9cfc3] bg-[#f9f3ea]
-                    text-center text-xl font-semibold text-primary
-                    focus:outline-none focus:ring-2 focus:ring-primary
-                    transition duration-200">
-
-                <input type="text" maxlength="1"
-                    class="otp-input w-14 h-14 rounded-xl
-                    border border-[#d9cfc3] bg-[#f9f3ea]
-                    text-center text-xl font-semibold text-primary
-                    focus:outline-none focus:ring-2 focus:ring-primary
-                    transition duration-200">
-
-                <input type="text" maxlength="1"
-                    class="otp-input w-14 h-14 rounded-xl
-                    border border-[#d9cfc3] bg-[#f9f3ea]
-                    text-center text-xl font-semibold text-primary
-                    focus:outline-none focus:ring-2 focus:ring-primary
-                    transition duration-200">
-
-                <input type="text" maxlength="1"
-                    class="otp-input w-14 h-14 rounded-xl
-                    border border-[#d9cfc3] bg-[#f9f3ea]
-                    text-center text-xl font-semibold text-primary
-                    focus:outline-none focus:ring-2 focus:ring-primary
-                    transition duration-200">
-
+                <input type="text" maxlength="1" class="otp-input w-14 h-14 rounded-xl border border-[#d9cfc3] bg-[#f9f3ea] text-center text-xl font-semibold text-primary focus:outline-none focus:ring-2 focus:ring-primary transition duration-200">
+                <input type="text" maxlength="1" class="otp-input w-14 h-14 rounded-xl border border-[#d9cfc3] bg-[#f9f3ea] text-center text-xl font-semibold text-primary focus:outline-none focus:ring-2 focus:ring-primary transition duration-200">
+                <input type="text" maxlength="1" class="otp-input w-14 h-14 rounded-xl border border-[#d9cfc3] bg-[#f9f3ea] text-center text-xl font-semibold text-primary focus:outline-none focus:ring-2 focus:ring-primary transition duration-200">
+                <input type="text" maxlength="1" class="otp-input w-14 h-14 rounded-xl border border-[#d9cfc3] bg-[#f9f3ea] text-center text-xl font-semibold text-primary focus:outline-none focus:ring-2 focus:ring-primary transition duration-200">
+                <input type="text" maxlength="1" class="otp-input w-14 h-14 rounded-xl border border-[#d9cfc3] bg-[#f9f3ea] text-center text-xl font-semibold text-primary focus:outline-none focus:ring-2 focus:ring-primary transition duration-200">
+                <input type="text" maxlength="1" class="otp-input w-14 h-14 rounded-xl border border-[#d9cfc3] bg-[#f9f3ea] text-center text-xl font-semibold text-primary focus:outline-none focus:ring-2 focus:ring-primary transition duration-200">
             </div>
 
             <!-- TIMER -->
             <div class="text-center mt-6">
-
-                <p class="text-sm text-gray-600 font-beVietnam
-                          flex items-center justify-center gap-1">
-
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         class="w-4 h-4 text-gray-500"
-                         fill="none"
-                         viewBox="0 0 24 24"
-                         stroke="currentColor">
-
-                        <path stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                <p class="text-sm text-gray-600 font-beVietnam flex items-center justify-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-
                     Kirim ulang kode dalam
-                    <span class="text-primary font-semibold">
-                        00:58
-                    </span>
-
+                    <span id="timer" class="text-primary font-semibold">01:00</span>
                 </p>
-
-                <button type="button"
-                    class="mt-2 text-sm text-gray-400
-                           font-medium cursor-not-allowed">
+                <button id="resendBtn" type="button" disabled
+                    class="mt-2 text-sm text-gray-400 font-medium cursor-not-allowed transition">
                     Kirim ulang kode
                 </button>
-
             </div>
 
             <!-- BUTTON -->
             <button type="submit"
-                class="w-full mt-8 bg-primary
-                       hover:bg-[#7f2f32]
-                       text-white py-3 rounded-lg
-                       transition duration-300
-                       font-beVietnam font-medium
-                       shadow-md hover:shadow-xl">
-
+                class="w-full mt-8 bg-primary hover:bg-[#7f2f32] text-white py-3 rounded-lg transition duration-300 font-beVietnam font-medium shadow-md hover:shadow-xl">
                 <div class="flex items-center justify-center gap-2">
-
                     Verifikasi Sekarang
-
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         class="w-5 h-5"
-                         fill="none"
-                         viewBox="0 0 24 24"
-                         stroke="currentColor">
-
-                        <path stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                     </svg>
-
                 </div>
-
             </button>
-
         </form>
 
         <!-- FOOTER -->
@@ -248,36 +182,76 @@
 
 <!-- AUTO NEXT OTP -->
 <script>
-
+    // AUTO NEXT INPUT
     const inputs = document.querySelectorAll('.otp-input');
 
     inputs.forEach((input, index) => {
-
         input.addEventListener('input', (e) => {
-
             e.target.value = e.target.value.replace(/[^0-9]/g, '');
-
-            if (e.target.value.length === 1 &&
-                index < inputs.length - 1) {
-
+            if (e.target.value.length === 1 && index < inputs.length - 1) {
                 inputs[index + 1].focus();
             }
-
         });
-
         input.addEventListener('keydown', (e) => {
-
-            if (e.key === 'Backspace' &&
-                !input.value &&
-                index > 0) {
-
+            if (e.key === 'Backspace' && !input.value && index > 0) {
                 inputs[index - 1].focus();
             }
-
         });
-
     });
 
+    // Gabungkan 6 input → satu hidden input sebelum submit
+    document.getElementById('otpForm').addEventListener('submit', function () {
+        let otp = '';
+        inputs.forEach(i => otp += i.value);
+        document.getElementById('otpValue').value = otp;
+    });
+
+    // COUNTDOWN TIMER
+    function startTimer(duration) {
+        let seconds = duration;
+        const timerEl   = document.getElementById('timer');
+        const resendBtn = document.getElementById('resendBtn');
+
+        const interval = setInterval(() => {
+            seconds--;
+            const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+            const s = String(seconds % 60).padStart(2, '0');
+            timerEl.textContent = `${m}:${s}`;
+
+            if (seconds <= 0) {
+                clearInterval(interval);
+                timerEl.textContent = '00:00';
+                resendBtn.disabled = false;
+                resendBtn.classList.remove('text-gray-400', 'cursor-not-allowed');
+                resendBtn.classList.add('text-primary', 'font-semibold', 'cursor-pointer', 'hover:underline');
+            }
+        }, 1000);
+
+        return interval;
+    }
+
+    let currentTimer = startTimer(60);
+
+    // Kirim ulang OTP
+    document.getElementById('resendBtn').addEventListener('click', function () {
+        if (this.disabled) return;
+
+        // Reset tombol
+        this.disabled = true;
+        this.classList.add('text-gray-400', 'cursor-not-allowed');
+        this.classList.remove('text-primary', 'font-semibold', 'cursor-pointer', 'hover:underline');
+
+        // Kirim request ke server untuk generate OTP baru
+        fetch('{{ route("otp.resend") }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        currentTimer = startTimer(60);
+    });
 </script>
 
 </body>
