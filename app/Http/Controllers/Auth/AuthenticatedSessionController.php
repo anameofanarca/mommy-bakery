@@ -28,6 +28,13 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // ❌ jangan full login flow
+        session([
+            'otp_user_id' => Auth::id(),
+        ]);
+
+        Auth::logout();
+
         return redirect()->route('otp');
     }
 
@@ -42,6 +49,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->route('welcome');
     }
 }

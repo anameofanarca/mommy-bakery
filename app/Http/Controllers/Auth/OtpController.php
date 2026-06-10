@@ -12,8 +12,14 @@ class OtpController extends Controller
 {
     public function index()
     {
-        // Auto kirim OTP saat halaman dibuka
-        $user = Auth::user();
+        $userId = session('otp_user_id');
+
+        if (!$userId) {
+            return redirect()->route('login');
+        }
+
+        $user = \App\Models\User::find($userId);
+
         $otp = rand(100000, 999999);
 
         $user->update([
@@ -32,7 +38,13 @@ class OtpController extends Controller
             'otp' => 'required|numeric|digits:6',
         ]);
 
-        $user = Auth::user();
+        $userId = session('otp_user_id');
+
+        if (!$userId) {
+            return redirect()->route('login');
+        }
+
+        $user = \App\Models\User::find($userId);
 
         if (
             $user->otp != $request->otp ||
@@ -43,20 +55,29 @@ class OtpController extends Controller
             ]);
         }
 
-        // OTP valid → bersihkan data OTP
         $user->update([
             'otp'            => null,
             'otp_expires_at' => null,
         ]);
 
-        // Redirect ke halaman utama setelah login sukses
-        return redirect('/')->with('success', 'Login berhasil!');
+        Auth::login($user);
+
+        session()->forget('otp_user_id');
+
+        return redirect()->route('welcome')->with('success', 'Login berhasil!');
     }
 
     public function resend()
     {
-        $user = Auth::user();
-        $otp  = rand(100000, 999999);
+        $userId = session('otp_user_id');
+
+        if (!$userId) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $user = \App\Models\User::find($userId);
+
+        $otp = rand(100000, 999999);
 
         $user->update([
             'otp'            => $otp,

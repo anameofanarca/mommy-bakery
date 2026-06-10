@@ -4,76 +4,63 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
     public function create(): View
     {
         return view('auth.register');
     }
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws ValidationException
-     */
     public function store(Request $request): RedirectResponse
-{
-    $request->validate([
-        'name' => ['required', 'string', 'max:255'],
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
 
-        'email' => [
-            'required',
-            'string',
-            'email',
-            'max:255',
-            'regex:/^[a-zA-Z0-9._%+-]+@gmail\.com$/',
-            'unique:users',
-        ],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                'regex:/^[a-zA-Z0-9._%+-]+@gmail\.com$/',
+                'unique:users',
+            ],
 
-        'password' => [
-            'required',
-            'confirmed',
-            'min:8',
-            'regex:/[A-Z]/',
-            'regex:/[0-9]/',
-            'regex:/[@$!%*#?&^]/',
-        ],
-    ], [
+            'password' => [
+                'required',
+                'confirmed',
+                'min:8',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[@$!%*#?&^]/',
+            ],
 
-        'email.regex' =>
-            'Email harus menggunakan @gmail.com',
+            'phone' => ['required', 'string', 'max:20'],
 
-        'password.min' =>
-            'Password minimal 8 karakter.',
+        ], [
+            'email.regex'          => 'Email harus menggunakan @gmail.com',
+            'email.unique'         => 'Email sudah terdaftar.',
+            'password.min'         => 'Password minimal 8 karakter.',
+            'password.regex'       => 'Password harus mengandung huruf besar, angka, dan simbol.',
+            'password.confirmed'   => 'Konfirmasi password tidak cocok.',
+            'phone.required'       => 'Nomor telepon wajib diisi.',
+        ]);
 
-        'password.regex' =>
-            'Password harus mengandung huruf besar, angka, dan simbol.',
+        User::create([
+            'name'        => $request->name,
+            'email'       => $request->email,
+            'password'    => Hash::make($request->password),
+            'phone'       => $request->phone,
+            'role'        => 'customer',
+            'is_verified' => false,
+        ]);
 
-        'password.confirmed' =>
-            'Konfirmasi password tidak cocok.',
-    ]);
-
-    $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'phone' => $request->phone,
-    ]);
-
-    return redirect()->route('login')
-        ->with('success', 'Akun berhasil dibuat! Silakan login.');
-
-}
+        return redirect()->route('login')
+            ->with('success', 'Akun berhasil dibuat! Silakan login.');
+    }
 }
