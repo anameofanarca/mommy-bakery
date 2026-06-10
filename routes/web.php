@@ -12,9 +12,15 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-
+use App\Http\Controllers\CateringController;
 
 Route::view('/', 'welcome')->name('welcome');
+
+Route::get('/catering', function () {
+    return view('catering');
+})->name('catering');
+Route::post('/catering/store', [CateringController::class, 'store'])
+    ->name('catering.store');
 
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])

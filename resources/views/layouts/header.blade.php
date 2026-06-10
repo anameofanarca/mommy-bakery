@@ -27,7 +27,7 @@
                 Menu
             </a>
 
-            <a href="{{ url('/products') }}"
+            <a href="{{ url('/catering') }}"
                class="hover:text-[#8B3A3A] transition">
                 Catering
             </a>
