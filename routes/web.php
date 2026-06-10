@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 // HOME PAGE
 Route::view('/', 'welcome');
 
+Route::get('/contact', function () {
+    return view('pages.contact');
+})->name('contact');
 
 // //BUAT CEK LOCALHOST AJAAAAAAAAAA
 // // cek tampilan Lupa Kata Sandi 

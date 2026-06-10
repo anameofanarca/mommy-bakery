@@ -10,11 +10,30 @@
         </a>
 
         <nav class="hidden md:flex gap-8 text-sm font-medium text-[#52443E]">
-            <a href="{{ url('/') }}" class="text-[#8B3A3A] font-semibold">Home</a>
-            <a href="#" class="hover:text-[#8B3A3A] transition">Menu</a>
-            <a href="#" class="hover:text-[#8B3A3A] transition">Catering</a>
-            <a href="#" class="hover:text-[#8B3A3A] transition">About</a>
-            <a href="#" class="hover:text-[#8B3A3A] transition">Contact</a>
+            <a href="{{ url('/') }}"
+               class="{{ request()->is('/') ? 'text-[#8B3A3A] font-semibold' : 'hover:text-[#8B3A3A] transition' }}">
+                Home
+            </a>
+
+            <a href="#"
+               class="hover:text-[#8B3A3A] transition">
+                Menu
+            </a>
+
+            <a href="#"
+               class="hover:text-[#8B3A3A] transition">
+                Catering
+            </a>
+
+            <a href="#"
+               class="hover:text-[#8B3A3A] transition">
+                About
+            </a>
+
+            <a href="{{ route('contact') }}"
+               class="{{ request()->routeIs('contact') ? 'text-[#8B3A3A] font-semibold' : 'hover:text-[#8B3A3A] transition' }}">
+                Contact
+            </a>
         </nav>
 
         <div class="flex items-center gap-5 text-[#4A2C2A]">
