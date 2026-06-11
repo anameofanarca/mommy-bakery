@@ -1,9 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-<<<<<<< HEAD
-
-=======
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CheckoutController;
@@ -16,80 +13,15 @@ use App\Http\Controllers\CateringController;
 use App\Http\Controllers\Auth\OtpController;
 
 // Auth Controller Imports dari rute lama
->>>>>>> 19704be620dd50489043935872ebb1fe304c8ca1
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
-<<<<<<< HEAD
-use App\Http\Controllers\Auth\OtpController;              // ← fix import
-=======
->>>>>>> 19704be620dd50489043935872ebb1fe304c8ca1
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-<<<<<<< HEAD
-use App\Http\Controllers\CateringController;
-
-Route::get('/contact', function () {
-    return view('pages.contact');
-})->name('contact');
-Route::view('/', 'welcome')->name('welcome');
-
-Route::get('/catering', function () {
-    return view('catering');
-})->name('catering');
-Route::post('/catering/store', [CateringController::class, 'store'])
-    ->name('catering.store');
-
-Route::middleware('guest')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])
-        ->name('register');
-    Route::post('register', [RegisteredUserController::class, 'store']);
-
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
-        ->name('login');
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
-
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-        ->name('password.request');
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-        ->name('password.email');
-
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-        ->name('password.reset');
-    Route::post('reset-password', [NewPasswordController::class, 'store'])
-        ->name('password.store');
-
-     Route::get('/otp', [OtpController::class, 'index'])   // ← pindah ke sini
-    ->name('otp');
-
-    Route::post('/otp/verify-login', [OtpController::class, 'verify'])->name('otp.verify-login');
-    Route::post('/otp/resend', [OtpController::class, 'resend'])->name('otp.resend');
-
-});
-
-Route::middleware('auth')->group(function () {
-    Route::get('verify-email', EmailVerificationPromptController::class)
-        ->name('verification.notice');
-    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
-    Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-        ->middleware('throttle:6,1')
-        ->name('verification.send');
-    
-    Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
-        ->name('password.confirm');
-    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
-
-    Route::put('password', [PasswordController::class, 'update'])
-        ->name('password.update');
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-        ->name('logout');
-=======
 
 // ==========================================
 // MENU ROUTES
@@ -117,6 +49,10 @@ Route::get('/menu/bakery', function () {
 Route::get('/menu/snackbox', function () {
     return view('menu.snackbox');
 });
+
+Route::post('/cart/add', function(\Illuminate\Http\Request $request) {
+    dd($request->all()); //
+})->name('cart.add');
 
 Route::get('/menu/snackbox/{id}', function ($id) {
     $limitKue = $id; 
@@ -217,22 +153,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
->>>>>>> 19704be620dd50489043935872ebb1fe304c8ca1
 });
-// //BUAT CEK LOCALHOST AJAAAAAAAAAA
-// // cek tampilan Lupa Kata Sandi 
-// Route::get('/cek-forgot', function () {
-//     return view('auth.forgot-password'); 
-// });
 
-<<<<<<< HEAD
-// // cek setelah email berhasil terkirim
-// Route::get('/cek-forgot-sukses', function () {
-//     session()->flash('status', 'We have emailed your password reset link!');
-//     return view('auth.forgot-password');
-// });
-
-=======
 require __DIR__.'/auth.php';
 
 // ==========================================
@@ -253,33 +175,15 @@ Route::post('/otp/verify', [OtpResetPasswordController::class, 'verifyOtpAndRese
 //     return view('auth.forgot-password');
 // });
 // 
->>>>>>> 19704be620dd50489043935872ebb1fe304c8ca1
 // // cek tampilan Atur ulang kata sandi 
 // Route::get('/cek-reset', function () {
 //     return view('auth.reset-password', ['request' => request()]);
 // });
-<<<<<<< HEAD
-
-=======
 // 
->>>>>>> 19704be620dd50489043935872ebb1fe304c8ca1
 // // cek setelah kata sandi berhasil diubah
 // Route::get('/cek-reset-sukses', function () {
 //     // Memaksa session status bernilai 'password-updated' agar blade mendeteksi kondisi sukses
 //     session()->flash('status', 'password-updated');
-<<<<<<< HEAD
-    
-//     // Membuat object request dummy agar variable $request tidak error/undefined di blade
-//     $dummyRequest = request();
-    
-//     return view('auth.reset-password', ['request' => $dummyRequest]);
-// });
-
-// // cek halaman OTP 
-// Route::get('/cek-otp', function () {
-//     return view('auth.auth-otp'); // sesuaikan dengan nama file otp kamu
-// });
-=======
 //    
 //     // Membuat object request dummy agar variable $request tidak error/undefined di blade
 //     $dummyRequest = request();
@@ -291,4 +195,3 @@ Route::post('/otp/verify', [OtpResetPasswordController::class, 'verifyOtpAndRese
 // Route::get('/cek-otp', function () {
 //     return view('auth.auth-otp'); // sesuaikan dengan nama file otp kamu
 // });
->>>>>>> 19704be620dd50489043935872ebb1fe304c8ca1
