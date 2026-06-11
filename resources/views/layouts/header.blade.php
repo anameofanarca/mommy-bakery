@@ -21,8 +21,8 @@
                 Home
             </a>
 
-            <a href="{{ url('/products') }}"
-               class="hover:text-[#8B3A3A] transition">
+            <a href="{{ url('/menu') }}"
+               class="{{ request()->routeIs('menu') ? 'text-[#8B3A3A] font-semibold' : 'hover:text-[#8B3A3A] transition' }}">
                 Menu
             </a>
 

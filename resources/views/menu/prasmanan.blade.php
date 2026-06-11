@@ -76,7 +76,7 @@
 
         <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col">
             <div class="h-48 overflow-hidden bg-[#FAF6F0] flex items-center justify-center">
-                <img src="{{ asset('images/product/Prasmanan.png') }}" class="w-full h-full object-cover" alt="Paket Prasmanan 100 Pax">
+                <img src="{{ asset('images/product/Paket Prasmanan 50 Pax.png') }}" class="w-full h-full object-cover" alt="Paket Prasmanan 100 Pax">
             </div>
             <div class="p-4 flex flex-col flex-grow">
                 <span class="text-xs font-medium text-[#A04545]">Prasmanan</span>
