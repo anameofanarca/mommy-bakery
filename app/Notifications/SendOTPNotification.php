@@ -34,7 +34,7 @@ class SendOTPNotification extends Notification
                     ->line('Kami menerima permintaan untuk melakukan reset password akun Mommy Bakery Anda.')
                     ->line('Berikut adalah kode OTP Anda untuk melanjutkan:')
                     ->line('## ' . $this->otp) // Menggunakan format Markdown '##' agar teks berukuran besar (Header)
-                    ->line('Kode ini rahasia dan hanya berlaku selama 5 menit.')
+                    ->line('Kode ini rahasia dan hanya berlaku selama 1 menit.')
                     ->line('Jika Anda tidak merasa meminta kode ini, abaikan saja email ini.');
     }
 }

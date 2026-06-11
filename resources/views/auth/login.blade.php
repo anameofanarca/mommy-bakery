@@ -108,6 +108,13 @@
             Masuk ke akun Mommy Catering & Bakery Anda
         </p>
 
+        <!-- SUCCESS MESSAGE -->
+        @if (session('success'))
+            <div class="mb-4 px-4 py-3 rounded-lg bg-green-100 text-green-700 text-sm font-beVietnam">
+                {{ session('success') }}
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('login') }}" class="space-y-4">
             @csrf
 
@@ -116,8 +123,8 @@
                     Email atau Nomor Telepon
                 </label>
 
-                <input type="text" name="login" required
-                    placeholder="Masukkan email atau nomor telepon"
+                <input type="email" name="email" required
+                    placeholder="Masukkan email"
                     class="w-full mt-1 px-4 py-3 rounded-lg border border-gray-300 bg-[#fffaf4]
                     font-beVietnam text-sm focus:outline-none focus:ring-2 focus:ring-primary">
             </div>
