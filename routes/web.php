@@ -50,6 +50,10 @@ Route::get('/menu/snackbox', function () {
     return view('menu.snackbox');
 });
 
+Route::post('/cart/add', function(\Illuminate\Http\Request $request) {
+    dd($request->all()); //
+})->name('cart.add');
+
 Route::get('/menu/snackbox/{id}', function ($id) {
     $limitKue = $id; 
     $daftarKue = [
