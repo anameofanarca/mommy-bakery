@@ -9,11 +9,10 @@ use App\Http\Controllers\OrderPaymentController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminPaymentController;
+use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Auth\OtpResetPasswordController;
 use App\Http\Controllers\CateringController;
 use App\Http\Controllers\Auth\OtpController;
-
-// Auth Controller Imports dari rute lama
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
@@ -27,29 +26,12 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 // ==========================================
 // MENU ROUTES
 // ==========================================
-Route::get('/menu', function () {
-    return view('menu.index');
-})->name('menu.index');
-
-Route::get('/menu/nasibox', function () {
-    return view('menu.nasibox');
-});
-
-Route::get('/menu/tumpeng', function () {
-    return view('menu.tumpeng');
-})->name('menu.tumpeng');
-
-Route::get('/menu/prasmanan', function () {
-    return view('menu.prasmanan');
-});
-
-Route::get('/menu/bakery', function () {
-    return view('menu.bakery');
-});
-
-Route::get('/menu/snackbox', function () {
-    return view('menu.snackbox');
-});
+Route::get('/menu', [ProductController::class, 'index'])->name('menu.index');
+Route::get('/menu/nasibox', [ProductController::class, 'byCategory'])->defaults('category', 'nasibox')->name('menu.nasibox');
+Route::get('/menu/tumpeng', [ProductController::class, 'byCategory'])->defaults('category', 'tumpeng')->name('menu.tumpeng');
+Route::get('/menu/prasmanan', [ProductController::class, 'byCategory'])->defaults('category', 'prasmanan')->name('menu.prasmanan');
+Route::get('/menu/bakery', [ProductController::class, 'byCategory'])->defaults('category', 'bakery')->name('menu.bakery');
+Route::get('/menu/snackbox', [ProductController::class, 'byCategory'])->defaults('category', 'snackbox')->name('menu.snackbox');
 
 Route::get('/menu/snackbox/{id}', function ($id) {
     $limitKue = $id; 
@@ -86,8 +68,7 @@ Route::get('/catering', function () {
     return view('catering');
 })->name('catering');
 
-Route::post('/catering/store', [CateringController::class, 'store'])
-    ->name('catering.store');
+Route::post('/catering/store', [CateringController::class, 'store'])->name('catering.store');
 
 Route::view('/about', 'about')->name('about');
 
@@ -113,10 +94,10 @@ Route::middleware('guest')->group(function () {
 });
 
 // ==========================================
-// PRODUCTS
+// PRODUCTS (API-style, kalau masih dipakai)
 // ==========================================
 Route::get('/products', [ProductController::class, 'index']);
-Route::get('/products/{product}', [ProductController::class, 'show']);
+Route::get('/products/{product}', [ProductController::class, 'show'])->name('product.show');
 
 // ==========================================
 // CART
@@ -138,36 +119,48 @@ Route::post('/orders/{order}/payment-proof', [OrderPaymentController::class, 'up
 Route::get('/orders/{order}/whatsapp', [WhatsAppController::class, 'redirect'])->name('orders.whatsapp');
 
 // ==========================================
-// ADMIN DASHBOARD & PROFILES
+// ADMIN
 // ==========================================
 Route::middleware(['auth'])->prefix('admin')->group(function () {
+    // Orders
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
     Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.status');
+
+    // Payments
     Route::patch('/payments/{payment}/verify', [AdminPaymentController::class, 'verify'])->name('admin.payments.verify');
+
+    // Products
+    Route::get('/product', [AdminProductController::class, 'index'])->name('admin.product');
+    Route::get('/product/create', [AdminProductController::class, 'create'])->name('admin.product.create');
+    Route::post('/product', [AdminProductController::class, 'store'])->name('admin.product.store');
+    Route::get('/product/{product}/edit', [AdminProductController::class, 'edit'])->name('admin.product.edit');
+    Route::patch('/product/{product}', [AdminProductController::class, 'update'])->name('admin.product.update');
+    Route::delete('/product/{product}', [AdminProductController::class, 'destroy'])->name('admin.product.destroy');
 });
 
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// ==========================================
+// AUTH (LOGGED IN)
+// ==========================================
 Route::middleware('auth')->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)->name('verification.notice');
     Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
     Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->middleware('throttle:6,1')->name('verification.send');
-    
+
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])->name('password.confirm');
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-    
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
-// //require __DIR__.'/auth.php';
 
 // ==========================================
 // OTP RESET PASSWORD
@@ -175,13 +168,8 @@ Route::middleware('auth')->group(function () {
 Route::post('/otp/send', [OtpResetPasswordController::class, 'sendOtp'])->name('otp.send');
 Route::post('/otp/verify', [OtpResetPasswordController::class, 'verifyOtpAndReset'])->name('otp.verify');
 
-// chart
-Route::get('/cart', function () {
-    return view('cart');
-})->name('cart');
-
 // ==========================================
-// ADMIN PAGES
+// ADMIN STATIC PAGES
 // ==========================================
 Route::get('/admin/login', function () {
     return view('admin.login');
@@ -191,51 +179,6 @@ Route::get('/admin/dashboard', function () {
     return view('admin.dashboard');
 })->name('admin.dashboard');
 
-Route::get('/admin/product', function () {
-    return view('admin.product');
-})->name('admin.product');
-
-Route::get('/admin/product/create', function () {
-    return view('admin.add-product');
-})->name('admin.product.create');
-
-Route::get('/admin/orders', function () {
-    return view('admin.orders');
-})->name('admin.orders');
-
 Route::get('/admin/payments', function () {
     return view('admin.payments');
 })->name('admin.payments');
-
-// //BUAT CEK LOCALHOST AJAAAAAAAAAA
-// // cek tampilan Lupa Kata Sandi 
-// Route::get('/cek-forgot', function () {
-//     return view('auth.forgot-password'); 
-// });
-// 
-// // cek setelah email berhasil terkirim
-// Route::get('/cek-forgot-sukses', function () {
-//     session()->flash('status', 'We have emailed your password reset link!');
-//     return view('auth.forgot-password');
-// });
-// 
-// // cek tampilan Atur ulang kata sandi 
-// Route::get('/cek-reset', function () {
-//     return view('auth.reset-password', ['request' => request()]);
-// });
-// 
-// // cek setelah kata sandi berhasil diubah
-// Route::get('/cek-reset-sukses', function () {
-//     // Memaksa session status bernilai 'password-updated' agar blade mendeteksi kondisi sukses
-//     session()->flash('status', 'password-updated');
-//    
-//     // Membuat object request dummy agar variable $request tidak error/undefined di blade
-//     $dummyRequest = request();
-//    
-//     return view('auth.reset-password', ['request' => $dummyRequest]);
-// });
-// 
-// // cek halaman OTP 
-// Route::get('/cek-otp', function () {
-//     return view('auth.auth-otp'); // sesuaikan dengan nama file otp kamu
-// });

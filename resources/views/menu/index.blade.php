@@ -39,89 +39,42 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
+        @forelse($products as $product)
         <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col">
             <div class="h-48 overflow-hidden">
-                <img src="{{ asset('images/product/Nasi Box_AyamBakar.png') }}" class="w-full h-full object-cover" alt="Nasi Box Ayam Bakar">
+                <img 
+                    src="{{ $product->image_url ? asset('storage/' . $product->image_url) : asset('images/product/default.png') }}" 
+                    class="w-full h-full object-cover" 
+                    alt="{{ $product->name }}"
+                >
             </div>
             <div class="p-4 flex flex-col flex-grow">
-                <span class="text-xs font-medium text-[#A04545]">Nasi Box</span>
-                <h3 class="text-lg font-bold text-[#4A2C2A] mt-1 line-clamp-1">Nasi Box Ayam Bakar</h3>
-                <p class="text-xs text-gray-500 mt-1 flex-grow line-clamp-2">Nasi putih dengan ayam bakar bumbu spesial, lalapan, and sambal.</p>
+                <span class="text-xs font-medium text-[#A04545]">{{ ucfirst($product->category) }}</span>
+                <h3 class="text-lg font-bold text-[#4A2C2A] mt-1 line-clamp-1">{{ $product->name }}</h3>
+                <p class="text-xs text-gray-500 mt-1 flex-grow line-clamp-2">{{ $product->description }}</p>
                 
                 <div class="flex justify-between items-end mt-4">
                     <div>
-                        <span class="block text-base font-bold text-[#A04545]">Rp 25.000</span>
-                        <span class="text-[10px] text-gray-400">1 porsi</span>
+                        <span class="block text-base font-bold text-[#A04545]">
+                            Rp {{ number_format($product->price, 0, ',', '.') }}
+                        </span>
                     </div>
-                    <a href="#" class="text-xs font-medium text-[#A04545] hover:underline flex items-center gap-1 mb-1">
+                    <a href="{{ route('product.show', $product->id) }}" 
+                       class="text-xs font-medium text-[#A04545] hover:underline flex items-center gap-1 mb-1">
                         Lihat Detail <span class="text-sm">→</span>
                     </a>
                 </div>
             </div>
         </div>
-
-        <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col">
-            <div class="h-48 overflow-hidden">
-                <img src="{{ asset('images/product/Nasi Box_Rendang.png') }}" class="w-full h-full object-cover" alt="Nasi Box Rendang">
-            </div>
-            <div class="p-4 flex flex-col flex-grow">
-                <span class="text-xs font-medium text-[#A04545]">Nasi Box</span>
-                <h3 class="text-lg font-bold text-[#4A2C2A] mt-1 line-clamp-1">Nasi Box Rendang</h3>
-                <p class="text-xs text-gray-500 mt-1 flex-grow line-clamp-2">Nasi dengan rendang daging sapi empuk dan bumbu rempah khas Padang.</p>
-                
-                <div class="flex justify-between items-end mt-4">
-                    <div>
-                        <span class="block text-base font-bold text-[#A04545]">Rp 30.000</span>
-                        <span class="text-[10px] text-gray-400">1 porsi</span>
-                    </div>
-                    <a href="#" class="text-xs font-medium text-[#A04545] hover:underline flex items-center gap-1 mb-1">
-                        Lihat Detail <span class="text-sm">→</span>
-                    </a>
-                </div>
-            </div>
+        @empty
+        <div class="col-span-4 text-center py-16 text-gray-400">
+            <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+            <p class="text-sm font-medium">Belum ada produk tersedia</p>
+            <p class="text-xs mt-1">Produk akan segera hadir</p>
         </div>
-
-        <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col">
-            <div class="h-48 overflow-hidden">
-                <img src="{{ asset('images/product/Paket Tumpeng Mini.png') }}" class="w-full h-full object-cover" alt="Paket Tumpeng Mini">
-            </div>
-            <div class="p-4 flex flex-col flex-grow">
-                <span class="text-xs font-medium text-[#A04545]">Tumpeng</span>
-                <h3 class="text-lg font-bold text-[#4A2C2A] mt-1 line-clamp-1">Paket Tumpeng Mini</h3>
-                <p class="text-xs text-gray-500 mt-1 flex-grow line-clamp-2">Tumpeng nasi kuning untuk 5-7 orang dengan lauk lengkap.</p>
-                
-                <div class="flex justify-between items-end mt-4">
-                    <div>
-                        <span class="block text-base font-bold text-[#A04545]">Rp 150.000</span>
-                        <span class="text-[10px] text-gray-400">5-7 orang</span>
-                    </div>
-                    <a href="#" class="text-xs font-medium text-[#A04545] hover:underline flex items-center gap-1 mb-1">
-                        Lihat Detail <span class="text-sm">→</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col">
-            <div class="h-48 overflow-hidden">
-                <img src="{{ asset('images/product/snackbox.png') }}" class="w-full h-full object-cover" alt="Snack Box Premium">
-            </div>
-            <div class="p-4 flex flex-col flex-grow">
-                <span class="text-xs font-medium text-[#A04545]">Snack Box</span>
-                <h3 class="text-lg font-bold text-[#4A2C2A] mt-1 line-clamp-1">Snack Box Premium</h3>
-                <p class="text-xs text-gray-500 mt-1 flex-grow line-clamp-2">Box berisi kue basah dan kering, air mineral.</p>
-                
-                <div class="flex justify-between items-end mt-4">
-                    <div>
-                        <span class="block text-base font-bold text-[#A04545]">Rp 35.000</span>
-                        <span class="text-[10px] text-gray-400">1 box</span>
-                    </div>
-                    <a href="#" class="text-xs font-medium text-[#A04545] hover:underline flex items-center gap-1 mb-1">
-                        Lihat Detail <span class="text-sm">→</span>
-                    </a>
-                </div>
-            </div>
-        </div>
+        @endforelse
 
     </div>
 </div>
