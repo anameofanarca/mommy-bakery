@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Models\Product;
+
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CheckoutController;
@@ -26,15 +28,63 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 // ==========================================
 // MENU ROUTES
 // ==========================================
-Route::get('/menu', [ProductController::class, 'index'])->name('menu.index');
-Route::get('/menu/nasibox', [ProductController::class, 'byCategory'])->defaults('category', 'nasibox')->name('menu.nasibox');
-Route::get('/menu/tumpeng', [ProductController::class, 'byCategory'])->defaults('category', 'tumpeng')->name('menu.tumpeng');
-Route::get('/menu/prasmanan', [ProductController::class, 'byCategory'])->defaults('category', 'prasmanan')->name('menu.prasmanan');
-Route::get('/menu/bakery', [ProductController::class, 'byCategory'])->defaults('category', 'bakery')->name('menu.bakery');
-Route::get('/menu/snackbox', [ProductController::class, 'byCategory'])->defaults('category', 'snackbox')->name('menu.snackbox');
+
+Route::get('/menu', function () {
+    $products = Product::where('is_active', true)
+        ->latest()
+        ->get();
+
+    return view('menu.index', compact('products'));
+})->name('menu.index');
+
+Route::get('/menu/nasibox', function () {
+    $products = Product::where('is_active', true)
+        ->where('category', 'Nasi Box')
+        ->latest()
+        ->get();
+
+    return view('menu.nasibox', compact('products'));
+})->name('menu.nasibox');
+
+Route::get('/menu/tumpeng', function () {
+    $products = Product::where('is_active', true)
+        ->where('category', 'Tumpeng')
+        ->latest()
+        ->get();
+
+    return view('menu.tumpeng', compact('products'));
+})->name('menu.tumpeng');
+
+Route::get('/menu/prasmanan', function () {
+    $products = Product::where('is_active', true)
+        ->where('category', 'Prasmanan')
+        ->latest()
+        ->get();
+
+    return view('menu.prasmanan', compact('products'));
+})->name('menu.prasmanan');
+
+Route::get('/menu/bakery', function () {
+    $products = Product::where('is_active', true)
+        ->where('category', 'Bakery')
+        ->latest()
+        ->get();
+
+    return view('menu.bakery', compact('products'));
+})->name('menu.bakery');
+
+Route::get('/menu/snackbox', function () {
+    $products = Product::where('is_active', true)
+        ->where('category', 'Snack Box')
+        ->latest()
+        ->get();
+
+    return view('menu.snackbox', compact('products'));
+})->name('menu.snackbox');
 
 Route::get('/menu/snackbox/{id}', function ($id) {
-    $limitKue = $id; 
+    $limitKue = $id;
+
     $daftarKue = [
         ['id' => 1, 'nama' => 'Risol Mayo Premium', 'harga' => 3500, 'gambar' => 'risol-mayo.png'],
         ['id' => 2, 'nama' => 'Lemper Ayam Spesial', 'harga' => 3500, 'gambar' => 'lemper.png'],
@@ -52,12 +102,14 @@ Route::get('/menu/snackbox/{id}', function ($id) {
         ['id' => 14, 'nama' => 'Lapis Legit Potong', 'harga' => 4000, 'gambar' => 'lapis-legit.png'],
         ['id' => 15, 'nama' => 'Puding Sutra Cup', 'harga' => 4000, 'gambar' => 'puding.png'],
     ];
+
     return view('menu.snackbox-detail', compact('limitKue', 'daftarKue'));
 })->name('snackbox.detail');
 
 // ==========================================
 // GENERAL & STATIC PAGES
 // ==========================================
+
 Route::view('/', 'welcome')->name('welcome');
 
 Route::get('/contact', function () {
@@ -75,6 +127,7 @@ Route::view('/about', 'about')->name('about');
 // ==========================================
 // AUTH & OTP GUEST
 // ==========================================
+
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
     Route::post('register', [RegisteredUserController::class, 'store']);
@@ -96,12 +149,14 @@ Route::middleware('guest')->group(function () {
 // ==========================================
 // PRODUCTS (API-style, kalau masih dipakai)
 // ==========================================
+
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('product.show');
 
 // ==========================================
 // CART
 // ==========================================
+
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
 Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
@@ -111,6 +166,7 @@ Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear
 // ==========================================
 // CHECKOUT
 // ==========================================
+
 Route::get('/checkout', [CheckoutController::class, 'create'])->name('checkout.create');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
@@ -121,6 +177,7 @@ Route::get('/orders/{order}/whatsapp', [WhatsAppController::class, 'redirect'])-
 // ==========================================
 // ADMIN
 // ==========================================
+
 Route::middleware(['auth'])->prefix('admin')->group(function () {
     // Orders
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
@@ -139,17 +196,28 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::delete('/product/{product}', [AdminProductController::class, 'destroy'])->name('admin.product.destroy');
 });
 
+// ==========================================
+// DASHBOARD AFTER LOGIN / REGISTER
+// ==========================================
+
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return redirect()->route('welcome');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // ==========================================
-// AUTH (LOGGED IN)
+// AUTH LOGGED IN
 // ==========================================
+
 Route::middleware('auth')->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)->name('verification.notice');
-    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
-    Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->middleware('throttle:6,1')->name('verification.send');
+
+    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verification.verify');
+
+    Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
 
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])->name('password.confirm');
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
@@ -165,6 +233,7 @@ Route::middleware('auth')->group(function () {
 // ==========================================
 // OTP RESET PASSWORD
 // ==========================================
+
 Route::post('/otp/send', [OtpResetPasswordController::class, 'sendOtp'])->name('otp.send');
 Route::post('/otp/verify', [OtpResetPasswordController::class, 'verifyOtpAndReset'])->name('otp.verify');
 

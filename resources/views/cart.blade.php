@@ -7,27 +7,24 @@
 @if (empty($items))
 
     {{-- ====================== CART KOSONG ====================== --}}
-    <div class="min-h-[60vh] flex items-center justify-center bg-[#faf8f3] py-20 px-4">
-        <div class="flex flex-col items-center gap-4 text-center">
-
-            <div class="w-20 h-20 flex items-center justify-center border-2 border-gray-300 rounded-xl bg-gray-100">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-400" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+    <section class="cart-empty-page">
+        <div class="cart-empty-box">
+            <div class="cart-empty-icon">
+                <svg width="90" height="90" viewBox="0 0 24 24" fill="none">
+                    <path d="M6 7L8 3H16L18 7" stroke="#d1d5db" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M5 7H19V18C19 19.1 18.1 20 17 20H7C5.9 20 5 19.1 5 18V7Z" stroke="#d1d5db" stroke-width="1.6" stroke-linejoin="round"/>
+                    <path d="M9 11C9 12.657 10.343 14 12 14C13.657 14 15 12.657 15 11" stroke="#d1d5db" stroke-width="1.6" stroke-linecap="round"/>
                 </svg>
             </div>
 
-            <h2 class="text-xl font-semibold text-gray-800">Keranjang Kosong</h2>
-            <p class="text-sm text-gray-500">Belum ada produk yang ditambahkan</p>
+            <h1>Keranjang Kosong</h1>
+            <p>Belum ada produk yang ditambahkan</p>
 
-            <a href="{{ route('menu.index') }}"
-                class="mt-2 bg-[#7a1a1a] hover:bg-[#5e1212] text-white text-sm font-medium px-8 py-2.5 rounded-md transition">
+            <a href="{{ route('menu.index') }}" class="cart-empty-btn">
                 Mulai Belanja
             </a>
-
         </div>
-    </div>
+    </section>
 
 @else
 

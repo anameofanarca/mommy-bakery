@@ -93,10 +93,17 @@
                     <div class="form-card general-info-card">
                         <h2>General Information</h2>
 
+<<<<<<< HEAD
                         <label for="name">Product Name</label>
                         <input type="text" id="name" name="name"
                                value="{{ old('name') }}"
                                placeholder="e.g. Sourdough Artisan Loaf">
+=======
+                        <label for="product_name">Product Name</label>
+<input type="text" id="product_name" name="product_name"
+       value="{{ old('product_name') }}"
+       placeholder="e.g. Sourdough Artisan Loaf">
+>>>>>>> 4513ceec811717e1d959cc42e234de287fe65df0
 
                         <label for="description">Description</label>
                         <textarea id="description" name="description"
@@ -140,6 +147,7 @@
                                 <span class="slider"></span>
                             </label>
                         </div>
+<<<<<<< HEAD
                     </div>
                     <div class="form-card category-card">
                         <h2>Categorization</h2>
@@ -173,19 +181,57 @@
                                    {{ old('category') == 'snackbox' ? 'checked' : '' }}>
                             <span>Snack Box</span>
                         </label>
+=======
+>>>>>>> 4513ceec811717e1d959cc42e234de287fe65df0
                     </div>
+                    <div class="form-card category-card">
+    <h2>Categorization</h2>
+
+    <label class="radio-option">
+        <input type="radio" name="category" value="Nasi Box"
+               {{ old('category') == 'Nasi Box' ? 'checked' : '' }}>
+        <span>Nasi Box</span>
+    </label>
+
+    <label class="radio-option">
+        <input type="radio" name="category" value="Tumpeng"
+               {{ old('category') == 'Tumpeng' ? 'checked' : '' }}>
+        <span>Tumpeng</span>
+    </label>
+
+    <label class="radio-option">
+        <input type="radio" name="category" value="Prasmanan"
+               {{ old('category') == 'Prasmanan' ? 'checked' : '' }}>
+        <span>Prasmanan</span>
+    </label>
+
+    <label class="radio-option">
+        <input type="radio" name="category" value="Bakery"
+               {{ old('category') == 'Bakery' ? 'checked' : '' }}>
+        <span>Bakery</span>
+    </label>
+
+    <label class="radio-option">
+        <input type="radio" name="category" value="Snack Box"
+               {{ old('category') == 'Snack Box' ? 'checked' : '' }}>
+        <span>Snack Box</span>
+    </label>
+</div>
 
                     <div class="form-card image-card">
                         <h2>Product Image</h2>
 
+<<<<<<< HEAD
                         <label for="image" class="upload-box" id="upload-label">
+=======
+                        <label for="product_image" class="upload-box" id="upload-label">
+>>>>>>> 4513ceec811717e1d959cc42e234de287fe65df0
                             <div class="upload-icon">☁</div>
                             <strong>Drop image or Click</strong>
                             <small>JPG atau PNG, maks 2MB</small>
                         </label>
 
-                        <input type="file" id="image" name="image" hidden accept="image/*">
-
+                        <input type="file" id="product_image" name="product_image" hidden accept="image/*">
                         <div id="image-preview" style="display:none; margin-top:12px;">
                             <img id="preview-img" src="" alt="Preview"
                                  style="width:100%; border-radius:8px; object-fit:cover; max-height:200px;">
@@ -206,7 +252,7 @@
 
     <script>
         // Preview gambar sebelum upload
-        document.getElementById('image').addEventListener('change', function(e) {
+        document.getElementById('product_image').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
