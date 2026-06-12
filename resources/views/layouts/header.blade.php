@@ -31,7 +31,7 @@
                 Catering
             </a>
 
-            <a href="#about"
+            <a href="{{ url('/about') }}"
                class="hover:text-[#8B3A3A] transition">
                 About
             </a>

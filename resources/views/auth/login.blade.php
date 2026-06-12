@@ -120,7 +120,7 @@
 
             <div>
                 <label class="text-sm font-beVietnam text-textDark">
-                    Email atau Nomor Telepon
+                    Email 
                 </label>
 
                 <input type="email" name="email" required

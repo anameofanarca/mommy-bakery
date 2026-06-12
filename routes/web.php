@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderPaymentController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\Admin\AdminOrderController;
@@ -50,10 +51,6 @@ Route::get('/menu/snackbox', function () {
     return view('menu.snackbox');
 });
 
-Route::post('/cart/add', function(\Illuminate\Http\Request $request) {
-    dd($request->all()); //
-})->name('cart.add');
-
 Route::get('/menu/snackbox/{id}', function ($id) {
     $limitKue = $id; 
     $daftarKue = [
@@ -92,6 +89,8 @@ Route::get('/catering', function () {
 Route::post('/catering/store', [CateringController::class, 'store'])
     ->name('catering.store');
 
+Route::view('/about', 'about')->name('about');
+
 // ==========================================
 // AUTH & OTP GUEST
 // ==========================================
@@ -114,11 +113,24 @@ Route::middleware('guest')->group(function () {
 });
 
 // ==========================================
-// PRODUCTS, CART, & CHECKOUT
+// PRODUCTS
 // ==========================================
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{product}', [ProductController::class, 'show']);
 
+// ==========================================
+// CART
+// ==========================================
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
+Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+
+// ==========================================
+// CHECKOUT
+// ==========================================
+Route::get('/checkout', [CheckoutController::class, 'create'])->name('checkout.create');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
 Route::get('/orders/{order}/payment', [OrderPaymentController::class, 'show'])->name('orders.payment.show');

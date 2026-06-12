@@ -62,7 +62,7 @@
                         <div class="invalid-feedback">Nomor WhatsApp wajib diisi.</div>
                     </div>
                 </div>
-
+                
                 <div class="form-group full-width">
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" class="form-control">
@@ -89,10 +89,18 @@
                     </div>
                     <div class="form-group">
                         <label for="budget">Budget (estimasi)</label>
-                        <input type="number" id="budget" name="budget" class="form-control" placeholder="5000000" min="0">
+
+                        <div class="budget-input">
+                            <span class="currency-icon">Rp</span>
+                            <input
+                                type="text"
+                                id="budget"
+                                name="budget"
+                                class="form-control"
+                                placeholder="5.000.000">
+                        </div>
                     </div>
                 </div>
-
                 <div class="form-group full-width">
                     <label for="preferensi_menu">Preferensi Menu <span class="required">*</span></label>
                     <textarea id="preferensi_menu" name="preferensi_menu" class="form-control" rows="3"
@@ -280,6 +288,25 @@
         resize: vertical;
     }
 
+    .budget-input {
+    position: relative;
+    }
+
+    .currency-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+        font-size: .9rem;
+        font-weight: 600;
+        z-index: 2;
+    }
+
+    .budget-input .form-control {
+        padding-left: 45px;
+    }
+
     /* ── WhatsApp Button ── */
     .btn-whatsapp {
         display: flex;
@@ -346,7 +373,7 @@ document.getElementById('cateringForm').addEventListener('submit', function(e) {
     const jenis      = document.getElementById('jenis_acara').value.trim();
     const tamu       = document.getElementById('jumlah_tamu').value.trim();
     const tanggal    = document.getElementById('tanggal_acara').value.trim();
-    const budget     = document.getElementById('budget').value.trim();
+    const budget = document.getElementById('budget').value.replace(/\./g, '').trim();
     const preferensi = document.getElementById('preferensi_menu').value.trim();
     const catatan    = document.getElementById('catatan_tambahan').value.trim();
 
@@ -407,7 +434,14 @@ Mohon informasi lebih lanjut. Terima kasih!`;
     });
 });
 
-// Remove invalid class on input
+const budgetInput = document.getElementById('budget');
+
+budgetInput.addEventListener('input', function () {
+    let value = this.value.replace(/\D/g, '');
+
+    this.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+});
+
 document.querySelectorAll('.form-control').forEach(function(el) {
     el.addEventListener('input', function() {
         this.classList.remove('is-invalid');

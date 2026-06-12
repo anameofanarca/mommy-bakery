@@ -3,11 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-<<<<<<< HEAD
 use App\Notifications\SendOTPNotification;
 use Carbon\Carbon;
-=======
->>>>>>> dc7b94b40d70d59e9d636ec71680799c6f2f7c27
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 

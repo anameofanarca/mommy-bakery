@@ -109,7 +109,7 @@
             <p class="text-gray-600 text-sm mt-2
                       font-beVietnam leading-relaxed">
                 Masukkan 6 digit kode yang telah kami
-                kirimkan ke nomor WhatsApp Anda.
+                kirimkan ke Email Anda.
             </p>
 
         </div>
