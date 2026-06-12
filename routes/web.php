@@ -73,6 +73,8 @@ Route::get('/menu/bakery', function () {
     return view('menu.bakery', compact('products'));
 })->name('menu.bakery');
 
+Route::get('/product/{product}', [App\Http\Controllers\ProductController::class, 'show'])->name('product.show');
+
 Route::get('/menu/snackbox', function () {
     $products = Product::where('is_active', true)
         ->where('category', 'Snack Box')

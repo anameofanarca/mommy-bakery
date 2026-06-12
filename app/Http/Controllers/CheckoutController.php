@@ -12,6 +12,39 @@ use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
+    /**
+     * Menampilkan halaman checkout (mengambil data dari session cart).
+     */
+    public function create()
+    {
+        $cart = session('cart', []);
+
+        if (empty($cart)) {
+            return redirect()->route('cart.index')->with('error', 'Keranjang belanja Anda kosong.');
+        }
+
+        $items = [];
+        $subtotal = 0;
+
+        foreach ($cart as $productId => $qty) {
+            $product = Product::find($productId);
+            if ($product) {
+                $line = $product->price * $qty;
+                $items[] = [
+                    'product_id' => $product->id,
+                    'product' => $product, // untuk ditampilkan di view
+                    'qty' => $qty,
+                    'subtotal' => $line,
+                ];
+                $subtotal += $line;
+            }
+        }
+
+        $deliveryFee = 10000; // Contoh sederhana, bisa disesuaikan
+        $total = $subtotal + $deliveryFee;
+
+        return view('checkout', compact('items', 'subtotal', 'deliveryFee', 'total'));
+    }
     public function store(Request $request)
     {
         $data = $request->validate([
