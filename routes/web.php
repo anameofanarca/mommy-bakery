@@ -24,14 +24,13 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 
 // ==========================================
-// MENU ROUTES
+// MENU ROUTES (SUDAH DIPERBAIKI SINKRONISASINYA)
 // ==========================================
+// 1. Rute Halaman Semua Menu (Menampilkan semua produk yang aktif)
 Route::get('/menu', [ProductController::class, 'index'])->name('menu.index');
-Route::get('/menu/nasibox', [ProductController::class, 'byCategory'])->defaults('category', 'nasibox')->name('menu.nasibox');
-Route::get('/menu/tumpeng', [ProductController::class, 'byCategory'])->defaults('category', 'tumpeng')->name('menu.tumpeng');
-Route::get('/menu/prasmanan', [ProductController::class, 'byCategory'])->defaults('category', 'prasmanan')->name('menu.prasmanan');
-Route::get('/menu/bakery', [ProductController::class, 'byCategory'])->defaults('category', 'bakery')->name('menu.bakery');
-Route::get('/menu/snackbox', [ProductController::class, 'byCategory'])->defaults('category', 'snackbox')->name('menu.snackbox');
+
+// 2. Rute Filter Kategori Dinamis (Diberi prefix /category/ agar tidak tabrakan)
+Route::get('/menu/category/{category}', [ProductController::class, 'byCategory'])->name('menu.category');
 
 Route::get('/menu/snackbox/{id}', function ($id) {
     $limitKue = $id; 

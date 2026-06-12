@@ -28,7 +28,7 @@ class AdminProductController extends Controller
             'price'       => 'required|numeric',
             'description' => 'nullable|string',
             'image'       => 'nullable|image|max:2048',
-            'stock'       => 'required|integer|min:0', // <== Tambah validasi stock
+            'stock'       => 'required|integer|min:0', 
         ]);
 
         $imagePath = null;
@@ -42,8 +42,9 @@ class AdminProductController extends Controller
             'price'       => $request->price,
             'description' => $request->description,
             'image_url'   => $imagePath,
-            'is_active'   => $request->has('is_active'), // <== Sudah benar menangkap checkbox
-            'stock'       => $request->stock ?? 0,       // <== Tambahkan ini agar stock tersimpan saat buat baru
+            // Perbaikan Utama: Membaca string '1' atau '0' langsung dari form HTML kamu
+            'is_active'   => $request->is_active == '1' ? true : false, 
+            'stock'       => $request->stock ?? 0,       
         ]);
 
         return redirect()->route('admin.product')->with('success', 'Produk berhasil ditambahkan!');
@@ -62,7 +63,7 @@ class AdminProductController extends Controller
             'price'       => 'required|numeric',
             'description' => 'nullable|string',
             'image'       => 'nullable|image|max:2048',
-            'stock'       => 'required|integer|min:0', // <== Tambah validasi stock
+            'stock'       => 'required|integer|min:0', 
         ]);
 
         $imagePath = $product->image_url;
@@ -77,7 +78,8 @@ class AdminProductController extends Controller
             'price'       => $request->price,
             'description' => $request->description,
             'image_url'   => $imagePath,
-            'is_active'   => $request->has('is_active'),
+            // Perbaikan Utama: Diterapkan juga pada fungsi update produk
+            'is_active'   => $request->is_active == '1' ? true : false,
             'stock'       => $request->stock ?? 0,
         ]);
 

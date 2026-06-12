@@ -5,6 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Inventory - Mommy Catering & Bakery</title>
     @vite(['resources/css/app.css', 'resources/css/menu.css', 'resources/css/admin.css'])
+    
+    <style>
+        .visibility-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-top: 6px;
+        }
+        .status-live {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+        .status-draft {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+        .badge-out-of-stock {
+            background-color: #fee2e2 !important;
+            color: #991b1b !important;
+        }
+    </style>
 </head>
 <body>
     <div class="admin-dashboard">
@@ -42,21 +65,33 @@
                 @foreach($products as $product)
                 <div class="product-card-admin">
                     <div class="product-card-image">
-                        @if($product->is_active)
+                        
+                        @if($product->stock > 0)
                             <span class="stock-badge in-stock">In Stock</span>
                         @else
-                            <span class="stock-badge inactive">Nonaktif</span>
+                            <span class="stock-badge inactive badge-out-of-stock">Out of Stock</span>
                         @endif
+
                         <img src="{{ $product->image_url ? asset('storage/' . $product->image_url) : asset('images/product/default.png') }}"
                              alt="{{ $product->name }}">
                     </div>
+                    
                     <div class="product-card-info">
                         <div class="product-card-title-row">
                             <h3>{{ $product->name }}</h3>
                             <span class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
                         </div>
                         <span class="product-meta">{{ strtoupper($product->category) }} • {{ $product->stock ?? 0 }} UNITS</span>
+                        
+                        <div>
+                            @if($product->is_active)
+                                <span class="visibility-badge status-live">● Live di Web</span>
+                            @else
+                                <span class="visibility-badge status-draft">○ Sembunyi (Draft)</span>
+                            @endif
+                        </div>
                     </div>
+                    
                     <div class="product-card-actions">
                         <a href="{{ route('admin.product.edit', $product->id) }}" class="btn-edit">Edit</a>
                         <form action="{{ route('admin.product.destroy', $product->id) }}" method="POST"
