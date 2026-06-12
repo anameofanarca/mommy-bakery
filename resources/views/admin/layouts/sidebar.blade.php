@@ -9,17 +9,17 @@
                 Dashboard
             </a>
 
-           <a href="{{ route('admin.orders') }}" class="{{ request()->routeIs('admin.orders') ? 'active' : '' }}">
+            <a href="{{ route('admin.orders.index') }}" class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
                 <img src="{{ asset('images/admin/orders.png') }}" alt="Orders">
                 Orders
-           </a>
+            </a>
 
             <a href="{{ route('admin.product') }}" class="{{ request()->routeIs('admin.product') || request()->routeIs('admin.product.create') ? 'active' : '' }}">
                 <img src="{{ asset('images/admin/products.png') }}" alt="Products">
                 Products
             </a>
 
-            <a href="{{ route('admin.payments') }}" class="{{ request()->routeIs('admin.payments') ? 'active' : '' }}">
+            <a href="{{ url('/admin/payments') }}" class="{{ request()->is('admin/payments') ? 'active' : '' }}">
                 <img src="{{ asset('images/admin/payments.png') }}" alt="Payments">
                 Payments
             </a>

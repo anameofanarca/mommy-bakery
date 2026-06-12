@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('image_url')->nullable(); // Cloudinary URL
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+            $table->integer('stock')->default(0);
         });
     }
 
