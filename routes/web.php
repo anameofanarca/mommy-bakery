@@ -28,7 +28,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\PaymentController;
 
 // ==========================================
-// MENU ROUTES
+// MENU ROUTES (SUDAH DIPERBAIKI SINKRONISASINYA)
 // ==========================================
 
 Route::get('/menu', function () {
@@ -85,6 +85,11 @@ Route::get('/menu/snackbox', function () {
 
     return view('menu.snackbox', compact('products'));
 })->name('menu.snackbox');
+// 1. Rute Halaman Semua Menu (Menampilkan semua produk yang aktif)
+Route::get('/menu', [ProductController::class, 'index'])->name('menu.index');
+
+// 2. Rute Filter Kategori Dinamis (Diberi prefix /category/ agar tidak tabrakan)
+Route::get('/menu/category/{category}', [ProductController::class, 'byCategory'])->name('menu.category');
 
 Route::get('/menu/snackbox/{id}', function ($id) {
     $limitKue = $id;
