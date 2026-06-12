@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-<<<<<<< HEAD
 use App\Models\CateringOrder;
 
 class CateringController extends Controller
@@ -31,10 +30,3 @@ class CateringController extends Controller
         ]);
     }
 }
-=======
-
-class CateringController extends Controller
-{
-    //
-}
->>>>>>> dc7b94b40d70d59e9d636ec71680799c6f2f7c27
