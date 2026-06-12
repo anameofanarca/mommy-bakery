@@ -13,121 +13,239 @@ use Illuminate\Support\Str;
 class CheckoutController extends Controller
 {
     /**
-     * Menampilkan halaman checkout (mengambil data dari session cart).
+     * Ambil item cart dan hitung subtotal.
+     */
+    private function getCartData()
+    {
+        $cart = session('cart', []);
+
+        $items = [];
+        $subtotal = 0;
+
+        foreach ($cart as $cartKey => $cartItem) {
+            // Format cart lama: [productId => qty]
+            if (is_numeric($cartItem)) {
+                $productId = $cartKey;
+                $qty = (int) $cartItem;
+                $selectedItems = [];
+            } else {
+                // Format cart baru: [cartKey => ['product_id', 'qty', 'selected_items']]
+                $productId = $cartItem['product_id'] ?? null;
+                $qty = (int) ($cartItem['qty'] ?? 1);
+                $selectedItems = $cartItem['selected_items'] ?? [];
+            }
+
+            $product = Product::find($productId);
+
+            if (!$product) {
+                continue;
+            }
+
+            $line = $product->price * $qty;
+
+            $items[] = [
+                'cart_key' => $cartKey,
+                'product_id' => $product->id,
+                'product' => $product,
+                'qty' => $qty,
+                'subtotal' => $line,
+                'selected_items' => $selectedItems,
+            ];
+
+            $subtotal += $line;
+        }
+
+        return [
+            'items' => $items,
+            'subtotal' => $subtotal,
+        ];
+    }
+
+    /**
+     * Halaman checkout: isi data pemesan.
      */
     public function create()
     {
         $cart = session('cart', []);
 
         if (empty($cart)) {
-            return redirect()->route('cart.index')->with('error', 'Keranjang belanja Anda kosong.');
+            return redirect()
+                ->route('cart.index')
+                ->with('error', 'Keranjang belanja Anda kosong.');
         }
 
-        $items = [];
-        $subtotal = 0;
+        $cartData = $this->getCartData();
 
-        foreach ($cart as $productId => $qty) {
-            $product = Product::find($productId);
-            if ($product) {
-                $line = $product->price * $qty;
-                $items[] = [
-                    'product_id' => $product->id,
-                    'product' => $product, // untuk ditampilkan di view
-                    'qty' => $qty,
-                    'subtotal' => $line,
-                ];
-                $subtotal += $line;
-            }
-        }
+        $items = $cartData['items'];
+        $subtotal = $cartData['subtotal'];
 
-        $deliveryFee = 10000; // Contoh sederhana, bisa disesuaikan
+        $deliveryFee = 0;
         $total = $subtotal + $deliveryFee;
 
         return view('checkout', compact('items', 'subtotal', 'deliveryFee', 'total'));
     }
-    public function store(Request $request)
+
+    /**
+     * Simpan data pemesan ke session, lalu lanjut ke halaman metode pembayaran.
+     */
+    public function saveCheckoutData(Request $request)
     {
         $data = $request->validate([
-            'customer_name' => ['required','string','max:255'],
-            'phone' => ['required','string','max:30'],
-            'email' => ['nullable','email','max:255'],
-            'delivery_type' => ['required','in:pickup,delivery'],
-            'address' => ['nullable','string'],
-            'schedule_at' => ['nullable','date'],
-            'note' => ['nullable','string'],
-            'payment_method' => ['required','string'],
-
-            'items' => ['required','array','min:1'],
-            'items.*.product_id' => ['required','integer','exists:products,id'],
-            'items.*.qty' => ['required','integer','min:1'],
-            'items.*.note' => ['nullable','string'],
+            'customer_name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:30'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'delivery_type' => ['required', 'in:pickup,delivery'],
+            'address' => ['nullable', 'string'],
+            'schedule_at' => ['nullable', 'date'],
+            'note' => ['nullable', 'string'],
         ]);
 
         if ($data['delivery_type'] === 'delivery' && empty($data['address'])) {
-            return response()->json(['message' => 'Address is required for delivery'], 422);
+            return back()
+                ->withErrors(['address' => 'Alamat wajib diisi jika memilih delivery.'])
+                ->withInput();
         }
 
-        return DB::transaction(function () use ($data) {
+        session(['checkout_data' => $data]);
+
+        return redirect()->route('checkout.payment');
+    }
+
+    /**
+     * Halaman metode pembayaran.
+     */
+    public function payment()
+    {
+        $cart = session('cart', []);
+        $checkoutData = session('checkout_data');
+
+        if (empty($cart)) {
+            return redirect()
+                ->route('cart.index')
+                ->with('error', 'Keranjang belanja Anda kosong.');
+        }
+
+        if (!$checkoutData) {
+            return redirect()
+                ->route('checkout.create')
+                ->with('error', 'Lengkapi data checkout terlebih dahulu.');
+        }
+
+        $cartData = $this->getCartData();
+
+        $items = $cartData['items'];
+        $subtotal = $cartData['subtotal'];
+
+        $deliveryFee = ($checkoutData['delivery_type'] === 'delivery') ? 10000 : 0;
+        $total = $subtotal + $deliveryFee;
+
+        return view('checkout.payment', compact('items', 'subtotal', 'deliveryFee', 'total'));
+    }
+
+    /**
+     * Simpan pesanan setelah user memilih metode pembayaran.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'payment_method' => ['required', 'string'],
+        ]);
+
+        $cart = session('cart', []);
+        $checkoutData = session('checkout_data');
+
+        if (empty($cart)) {
+            return redirect()
+                ->route('cart.index')
+                ->with('error', 'Keranjang belanja Anda kosong.');
+        }
+
+        if (!$checkoutData) {
+            return redirect()
+                ->route('checkout.create')
+                ->with('error', 'Lengkapi data checkout terlebih dahulu.');
+        }
+
+        return DB::transaction(function () use ($request, $cart, $checkoutData) {
             $orderCode = 'MB-' . now()->format('Ymd') . '-' . strtoupper(Str::random(5));
 
             $subtotal = 0;
             $itemsPayload = [];
 
-            $productIds = collect($data['items'])->pluck('product_id')->all();
-            $products = Product::query()->whereIn('id', $productIds)->get()->keyBy('id');
+            foreach ($cart as $cartKey => $cartItem) {
+                // Format cart lama
+                if (is_numeric($cartItem)) {
+                    $productId = $cartKey;
+                    $qty = (int) $cartItem;
+                    $selectedItems = [];
+                } else {
+                    // Format cart baru / snack box
+                    $productId = $cartItem['product_id'] ?? null;
+                    $qty = (int) ($cartItem['qty'] ?? 1);
+                    $selectedItems = $cartItem['selected_items'] ?? [];
+                }
 
-            foreach ($data['items'] as $item) {
-                $product = $products[$item['product_id']];
-                $line = $product->price * (int)$item['qty'];
+                $product = Product::find($productId);
+
+                if (!$product) {
+                    continue;
+                }
+
+                $line = $product->price * $qty;
                 $subtotal += $line;
+
+                $itemNote = null;
+
+                if (!empty($selectedItems)) {
+                    $itemNote = 'Pilihan Snack Box: ' . implode(', ', $selectedItems);
+                }
 
                 $itemsPayload[] = [
                     'product_id' => $product->id,
                     'product_name_snapshot' => $product->name,
                     'price_snapshot' => $product->price,
-                    'qty' => (int)$item['qty'],
-                    'note' => $item['note'] ?? null,
+                    'qty' => $qty,
+                    'note' => $itemNote,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
             }
 
-            $deliveryFee = ($data['delivery_type'] === 'delivery') ? 10000 : 0; // rule sederhana
+            $deliveryFee = ($checkoutData['delivery_type'] === 'delivery') ? 10000 : 0;
             $total = $subtotal + $deliveryFee;
 
             $order = Order::create([
                 'order_code' => $orderCode,
-                'customer_name' => $data['customer_name'],
-                'phone' => $data['phone'],
-                'email' => $data['email'] ?? null,
-                'delivery_type' => $data['delivery_type'],
-                'address' => $data['address'] ?? null,
-                'schedule_at' => $data['schedule_at'] ?? null,
-                'note' => $data['note'] ?? null,
+                'customer_name' => $checkoutData['customer_name'],
+                'phone' => $checkoutData['phone'],
+                'email' => $checkoutData['email'] ?? null,
+                'delivery_type' => $checkoutData['delivery_type'],
+                'address' => $checkoutData['address'] ?? null,
+                'schedule_at' => $checkoutData['schedule_at'] ?? null,
+                'note' => $checkoutData['note'] ?? null,
                 'subtotal' => $subtotal,
                 'delivery_fee' => $deliveryFee,
                 'total' => $total,
-                'payment_method' => $data['payment_method'],
+                'payment_method' => $request->payment_method,
                 'status' => 'pending_payment',
             ]);
 
             foreach ($itemsPayload as &$row) {
                 $row['order_id'] = $order->id;
             }
+
             OrderItem::insert($itemsPayload);
 
             Payment::create([
                 'order_id' => $order->id,
-                'method' => $data['payment_method'],
+                'method' => $request->payment_method,
                 'status' => 'unverified',
             ]);
 
-            return response()->json([
-                'order_id' => $order->id,
-                'order_code' => $order->order_code,
-                'payment_url' => route('orders.payment.show', $order),
-                'whatsapp_url' => route('orders.whatsapp', $order),
-            ], 201);
+            session()->forget('cart');
+            session()->forget('checkout_data');
+
+            return redirect()->route('orders.payment.show', $order);
         });
     }
 }

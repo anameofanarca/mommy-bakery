@@ -161,8 +161,8 @@ Route::get('/products/{product}', [ProductController::class, 'show'])->name('pro
 
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
-Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
-Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+Route::patch('/cart/update/{cartKey}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/remove/{cartKey}', [CartController::class, 'remove'])->name('cart.remove');
 Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
 // ==========================================
@@ -170,7 +170,10 @@ Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear
 // ==========================================
 
 Route::get('/checkout', [CheckoutController::class, 'create'])->name('checkout.create');
-Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::post('/checkout/payment', [CheckoutController::class, 'saveCheckoutData'])->name('checkout.payment.save');
+
+Route::get('/checkout/payment', [CheckoutController::class, 'payment'])->name('checkout.payment');
+Route::post('/checkout/store', [CheckoutController::class, 'store'])->name('checkout.store');
 
 Route::get('/orders/{order}/payment', [OrderPaymentController::class, 'show'])->name('orders.payment.show');
 Route::post('/orders/{order}/payment-proof', [OrderPaymentController::class, 'uploadProof'])->name('orders.payment.proof');
