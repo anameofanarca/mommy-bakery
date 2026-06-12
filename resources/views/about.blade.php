@@ -74,7 +74,7 @@
         <div class="relative group">
             <div class="absolute -inset-4 bg-[#973035]/10 rounded-3xl transform -rotate-3 transition-transform group-hover:rotate-0"></div>
             {{-- TODO: ganti src ini dengan foto owner asli --}}
-            <img src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80"
+            <img src="{{ asset('images/mamaiik.png') }}"
                  alt="Pemilik Mommy Catering"
                  class="relative rounded-3xl shadow-xl w-full aspect-[4/3] object-cover">
         </div>
@@ -95,7 +95,7 @@
                 standar profesionalisme tanpa menghilangkan sentuhan personal "Ibu".
             </p>
             <div class="border-l-4 border-[#973035] pl-4">
-                <span class="block font-[Playfair_Display] text-xl font-bold text-[#451C07]">Hj. Siti Rahmah</span>
+                <span class="block font-[Playfair_Display] text-xl font-bold text-[#451C07]">Sri Mudiyati</span>
                 <span class="text-gray-500 italic">Founder &amp; Head Baker</span>
             </div>
         </div>
