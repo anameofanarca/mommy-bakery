@@ -51,14 +51,9 @@ class AdminProductController extends Controller
             'price'       => (int) $price,
             'description' => $request->description,
             'image_url'   => $imagePath,
-<<<<<<< HEAD
-            'is_active'   => true,
-            'stock'       => $request->stock ?? 0,
-=======
             // Perbaikan Utama: Membaca string '1' atau '0' langsung dari form HTML kamu
             'is_active'   => $request->is_active == '1' ? true : false, 
             'stock'       => $request->stock ?? 0,       
->>>>>>> 23362ea (bakery layout admin masih blm)
         ]);
 
         return redirect()
@@ -74,21 +69,12 @@ class AdminProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $request->validate([
-<<<<<<< HEAD
-            'product_name'  => 'required|string|max:255',
-            'category'      => 'required|string|max:100',
-            'price'         => 'required|string',
-            'description'   => 'nullable|string',
-            'product_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
-            'stock'         => 'required|integer|min:0',
-=======
             'name'        => 'required|string|max:255',
             'category'    => 'required|string',
             'price'       => 'required|numeric',
             'description' => 'nullable|string',
             'image'       => 'nullable|image|max:2048',
             'stock'       => 'required|integer|min:0', 
->>>>>>> 23362ea (bakery layout admin masih blm)
         ]);
 
         $imagePath = $product->image_url;
@@ -109,12 +95,8 @@ class AdminProductController extends Controller
             'price'       => (int) $price,
             'description' => $request->description,
             'image_url'   => $imagePath,
-<<<<<<< HEAD
-            'is_active'   => true,
-=======
             // Perbaikan Utama: Diterapkan juga pada fungsi update produk
             'is_active'   => $request->is_active == '1' ? true : false,
->>>>>>> 23362ea (bakery layout admin masih blm)
             'stock'       => $request->stock ?? 0,
         ]);
 
