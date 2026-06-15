@@ -25,6 +25,8 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 
+use App\Http\Controllers\PaymentController;
+
 // ==========================================
 // MENU ROUTES
 // ==========================================
@@ -256,3 +258,20 @@ Route::get('/admin/dashboard', function () {
 Route::get('/admin/payments', function () {
     return view('admin.payments');
 })->name('admin.payments');
+
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{id}', [AdminOrderController::class, 'show'])->name('orders.show');
+
+    Route::patch('/orders/{id}/mark-paid', [AdminOrderController::class, 'markPaid'])->name('orders.markPaid');
+    Route::patch('/orders/{id}/mark-processing', [AdminOrderController::class, 'markProcessing'])->name('orders.markProcessing');
+    Route::patch('/orders/{id}/mark-completed', [AdminOrderController::class, 'markCompleted'])->name('orders.markCompleted');
+    Route::patch('/orders/{id}/cancel', [AdminOrderController::class, 'cancel'])->name('orders.cancel');
+});
+
+//payment routes
+Route::get('/payment/{orderId}', [PaymentController::class, 'show'])->name('payment.show');
+Route::get('/payment/success/{orderId}', [PaymentController::class, 'success'])->name('payment.success');
+Route::get('/payment/check-status/{orderId}', [PaymentController::class, 'checkStatus'])->name('payment.checkStatus');
+
+Route::post('/midtrans/notification', [PaymentController::class, 'notification'])->name('midtrans.notification');

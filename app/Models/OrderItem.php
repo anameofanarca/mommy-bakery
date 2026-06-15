@@ -7,7 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class OrderItem extends Model
 {
     protected $fillable = [
-        'order_id', 'product_id', 'product_name_snapshot', 'price_snapshot', 'qty', 'note',
+        'order_id',
+        'product_id',
+        'product_name_snapshot',
+        'price_snapshot',
+        'qty',
+        'note',
     ];
 
     public function order()

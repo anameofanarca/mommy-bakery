@@ -23,13 +23,11 @@ class CheckoutController extends Controller
         $subtotal = 0;
 
         foreach ($cart as $cartKey => $cartItem) {
-            // Format cart lama: [productId => qty]
             if (is_numeric($cartItem)) {
                 $productId = $cartKey;
                 $qty = (int) $cartItem;
                 $selectedItems = [];
             } else {
-                // Format cart baru: [cartKey => ['product_id', 'qty', 'selected_items']]
                 $productId = $cartItem['product_id'] ?? null;
                 $qty = (int) ($cartItem['qty'] ?? 1);
                 $selectedItems = $cartItem['selected_items'] ?? [];
@@ -86,7 +84,7 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Simpan data pemesan ke session, lalu lanjut ke halaman metode pembayaran.
+     * Setelah checkout, langsung buat order dan lanjut ke pembayaran QRIS.
      */
     public function saveCheckoutData(Request $request)
     {
@@ -106,18 +104,7 @@ class CheckoutController extends Controller
                 ->withInput();
         }
 
-        session(['checkout_data' => $data]);
-
-        return redirect()->route('checkout.payment');
-    }
-
-    /**
-     * Halaman metode pembayaran.
-     */
-    public function payment()
-    {
         $cart = session('cart', []);
-        $checkoutData = session('checkout_data');
 
         if (empty($cart)) {
             return redirect()
@@ -125,61 +112,18 @@ class CheckoutController extends Controller
                 ->with('error', 'Keranjang belanja Anda kosong.');
         }
 
-        if (!$checkoutData) {
-            return redirect()
-                ->route('checkout.create')
-                ->with('error', 'Lengkapi data checkout terlebih dahulu.');
-        }
-
-        $cartData = $this->getCartData();
-
-        $items = $cartData['items'];
-        $subtotal = $cartData['subtotal'];
-
-        $deliveryFee = ($checkoutData['delivery_type'] === 'delivery') ? 10000 : 0;
-        $total = $subtotal + $deliveryFee;
-
-        return view('checkout.payment', compact('items', 'subtotal', 'deliveryFee', 'total'));
-    }
-
-    /**
-     * Simpan pesanan setelah user memilih metode pembayaran.
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'payment_method' => ['required', 'string'],
-        ]);
-
-        $cart = session('cart', []);
-        $checkoutData = session('checkout_data');
-
-        if (empty($cart)) {
-            return redirect()
-                ->route('cart.index')
-                ->with('error', 'Keranjang belanja Anda kosong.');
-        }
-
-        if (!$checkoutData) {
-            return redirect()
-                ->route('checkout.create')
-                ->with('error', 'Lengkapi data checkout terlebih dahulu.');
-        }
-
-        return DB::transaction(function () use ($request, $cart, $checkoutData) {
+        return DB::transaction(function () use ($cart, $data) {
             $orderCode = 'MB-' . now()->format('Ymd') . '-' . strtoupper(Str::random(5));
 
             $subtotal = 0;
             $itemsPayload = [];
 
             foreach ($cart as $cartKey => $cartItem) {
-                // Format cart lama
                 if (is_numeric($cartItem)) {
                     $productId = $cartKey;
                     $qty = (int) $cartItem;
                     $selectedItems = [];
                 } else {
-                    // Format cart baru / snack box
                     $productId = $cartItem['product_id'] ?? null;
                     $qty = (int) ($cartItem['qty'] ?? 1);
                     $selectedItems = $cartItem['selected_items'] ?? [];
@@ -211,22 +155,28 @@ class CheckoutController extends Controller
                 ];
             }
 
-            $deliveryFee = ($checkoutData['delivery_type'] === 'delivery') ? 10000 : 0;
+            if (empty($itemsPayload)) {
+                return redirect()
+                    ->route('cart.index')
+                    ->with('error', 'Produk di keranjang tidak valid.');
+            }
+
+            $deliveryFee = ($data['delivery_type'] === 'delivery') ? 10000 : 0;
             $total = $subtotal + $deliveryFee;
 
             $order = Order::create([
                 'order_code' => $orderCode,
-                'customer_name' => $checkoutData['customer_name'],
-                'phone' => $checkoutData['phone'],
-                'email' => $checkoutData['email'] ?? null,
-                'delivery_type' => $checkoutData['delivery_type'],
-                'address' => $checkoutData['address'] ?? null,
-                'schedule_at' => $checkoutData['schedule_at'] ?? null,
-                'note' => $checkoutData['note'] ?? null,
+                'customer_name' => $data['customer_name'],
+                'phone' => $data['phone'],
+                'email' => $data['email'] ?? null,
+                'delivery_type' => $data['delivery_type'],
+                'address' => $data['address'] ?? null,
+                'schedule_at' => $data['schedule_at'] ?? null,
+                'note' => $data['note'] ?? null,
                 'subtotal' => $subtotal,
                 'delivery_fee' => $deliveryFee,
                 'total' => $total,
-                'payment_method' => $request->payment_method,
+                'payment_method' => 'qris',
                 'status' => 'pending_payment',
             ]);
 
@@ -238,14 +188,30 @@ class CheckoutController extends Controller
 
             Payment::create([
                 'order_id' => $order->id,
-                'method' => $request->payment_method,
+                'method' => 'qris',
                 'status' => 'unverified',
             ]);
 
             session()->forget('cart');
             session()->forget('checkout_data');
 
-            return redirect()->route('orders.payment.show', $order);
+            return redirect()->route('payment.show', $order->id);
         });
+    }
+
+    /**
+     * Halaman payment method lama sudah tidak dipakai.
+     */
+    public function payment()
+    {
+        return redirect()->route('checkout.create');
+    }
+
+    /**
+     * Method lama tidak dipakai karena sekarang payment method otomatis QRIS.
+     */
+    public function store(Request $request)
+    {
+        return redirect()->route('checkout.create');
     }
 }
