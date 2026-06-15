@@ -25,6 +25,8 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 
+use App\Http\Controllers\PaymentController;
+
 // ==========================================
 // MENU ROUTES (SUDAH DIPERBAIKI SINKRONISASINYA)
 // ==========================================
@@ -161,8 +163,8 @@ Route::get('/products/{product}', [ProductController::class, 'show'])->name('pro
 
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
-Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
-Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+Route::patch('/cart/update/{cartKey}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/remove/{cartKey}', [CartController::class, 'remove'])->name('cart.remove');
 Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
 // ==========================================
@@ -170,7 +172,10 @@ Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear
 // ==========================================
 
 Route::get('/checkout', [CheckoutController::class, 'create'])->name('checkout.create');
-Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::post('/checkout/payment', [CheckoutController::class, 'saveCheckoutData'])->name('checkout.payment.save');
+
+Route::get('/checkout/payment', [CheckoutController::class, 'payment'])->name('checkout.payment');
+Route::post('/checkout/store', [CheckoutController::class, 'store'])->name('checkout.store');
 
 Route::get('/orders/{order}/payment', [OrderPaymentController::class, 'show'])->name('orders.payment.show');
 Route::post('/orders/{order}/payment-proof', [OrderPaymentController::class, 'uploadProof'])->name('orders.payment.proof');
@@ -253,3 +258,20 @@ Route::get('/admin/dashboard', function () {
 Route::get('/admin/payments', function () {
     return view('admin.payments');
 })->name('admin.payments');
+
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{id}', [AdminOrderController::class, 'show'])->name('orders.show');
+
+    Route::patch('/orders/{id}/mark-paid', [AdminOrderController::class, 'markPaid'])->name('orders.markPaid');
+    Route::patch('/orders/{id}/mark-processing', [AdminOrderController::class, 'markProcessing'])->name('orders.markProcessing');
+    Route::patch('/orders/{id}/mark-completed', [AdminOrderController::class, 'markCompleted'])->name('orders.markCompleted');
+    Route::patch('/orders/{id}/cancel', [AdminOrderController::class, 'cancel'])->name('orders.cancel');
+});
+
+//payment routes
+Route::get('/payment/{orderId}', [PaymentController::class, 'show'])->name('payment.show');
+Route::get('/payment/success/{orderId}', [PaymentController::class, 'success'])->name('payment.success');
+Route::get('/payment/check-status/{orderId}', [PaymentController::class, 'checkStatus'])->name('payment.checkStatus');
+
+Route::post('/midtrans/notification', [PaymentController::class, 'notification'])->name('midtrans.notification');

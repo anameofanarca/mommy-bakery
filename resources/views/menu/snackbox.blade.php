@@ -3,12 +3,14 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 md:px-8 py-6" x-data="{ 
     isModalOpen: false, 
+    selectedProductId: null,
     selectedPaket: '', 
     selectedHarga: 0, 
     maxIsian: 0,
     selectedSnacks: [],
     
-    openCustomizer(nama, harga, limit) {
+    openCustomizer(id, nama, harga, limit) {
+        this.selectedProductId = id;
         this.selectedPaket = nama;
         this.selectedHarga = harga;
         this.maxIsian = limit;
@@ -96,13 +98,6 @@
                 $name = $product->name;
                 $price = (int) $product->price;
 
-                /*
-                    Limit pilihan snack:
-                    - Kalau deskripsi mengandung "isi 3", limit = 3
-                    - Kalau "isi 4", limit = 4
-                    - Kalau "isi 5", limit = 5
-                    - Default = 3
-                */
                 $descriptionText = strtolower($product->description ?? '');
 
                 if (str_contains($descriptionText, 'isi 7')) {
@@ -155,7 +150,7 @@
 
                         <button
                             type="button"
-                            @click="openCustomizer('{{ addslashes($name) }}', {{ $price }}, {{ $limit }})"
+                            @click="openCustomizer({{ $product->id }}, '{{ addslashes($name) }}', {{ $price }}, {{ $limit }})"
                             class="text-xs font-medium text-[#A04545] hover:underline flex items-center gap-1 mb-1 cursor-pointer bg-transparent border-none p-0"
                         >
                             Lihat Detail <span class="text-sm">→</span>
@@ -171,6 +166,7 @@
 
     </div>
 
+    {{-- MODAL PILIH ISIAN SNACK BOX --}}
     <div x-show="isModalOpen" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4" x-transition style="display: none;">
         <div class="bg-[#FAF6F0] w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-black/5 flex flex-col max-h-[85vh]" @click.away="isModalOpen = false">
             
@@ -189,94 +185,107 @@
                 <div class="w-6"></div>
             </div>
 
-            <div class="overflow-y-auto p-5 flex-grow space-y-5">
-                
-                <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-black/5">
+            <form method="POST" :action="'{{ url('/cart/add') }}/' + selectedProductId" class="flex flex-col flex-grow overflow-hidden">
+                @csrf
+
+                <input type="hidden" name="qty" value="1">
+                <input type="hidden" name="selected_items" :value="JSON.stringify(selectedSnacks)">
+
+                <div class="overflow-y-auto p-5 flex-grow space-y-5">
+                    
+                    <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-black/5">
+                        <div>
+                            <h3 class="text-xs font-bold text-[#4A2C2A]">
+                                Pilih Maksimal <span x-text="maxIsian"></span> Kue
+                            </h3>
+                            <p class="text-[10px] text-[#4A2C2A]/50 mt-0.5 font-medium">
+                                Terpilih:
+                                <span class="font-bold text-[#A04545]" x-text="selectedSnacks.length"></span>
+                                dari
+                                <span x-text="maxIsian"></span>
+                            </p>
+                        </div>
+
+                        <span
+                            class="text-[10px] font-bold px-3 py-1 rounded-full border"
+                            :class="selectedSnacks.length === maxIsian 
+                                ? 'bg-green-50 text-green-700 border-green-100' 
+                                : 'bg-yellow-50 text-yellow-700 border-yellow-100'"
+                            x-text="selectedSnacks.length === maxIsian ? 'Lengkap' : 'Belum lengkap'"
+                        >
+                        </span>
+                    </div>
+
                     <div>
-                        <h3 class="text-xs font-bold text-[#4A2C2A]">
-                            Pilih Maksimal <span x-text="maxIsian"></span> Kue
-                        </h3>
-                        <p class="text-[10px] text-[#4A2C2A]/50 mt-0.5 font-medium">
-                            Terpilih:
-                            <span class="font-bold text-[#A04545]" x-text="selectedSnacks.length"></span>
-                            dari
-                            <span x-text="maxIsian"></span>
-                        </p>
-                    </div>
+                        <h4 class="text-[10px] font-bold text-[#A04545] uppercase tracking-wider mb-2.5 px-1">
+                            Pilihan Asin / Gurih
+                        </h4>
 
-                    <span class="bg-green-50 text-green-700 text-[10px] font-bold px-3 py-1 rounded-full border border-green-100">
-                        Aktif
-                    </span>
-                </div>
+                        <div class="bg-white rounded-2xl divide-y divide-black/[0.03] border border-black/5 overflow-hidden">
+                            <template x-for="snack in ['Lemper Ayam', 'Lontong Sayur', 'Risol Mayo', 'Pastel Ayam', 'Bakwan Udang', 'Martabak Telur Mini', 'Kroket Kentang']" :key="snack">
+                                <label class="flex items-center justify-between p-4 cursor-pointer hover:bg-[#FAF6F0]/30 transition-colors">
+                                    <div class="flex items-center justify-between w-full">
+                                        <div class="flex items-center gap-3.5">
+                                            <input
+                                                type="checkbox"
+                                                :disabled="!selectedSnacks.includes(snack) && selectedSnacks.length >= maxIsian"
+                                                :checked="selectedSnacks.includes(snack)"
+                                                @change="toggleSnack(snack)"
+                                                class="w-4 h-4 rounded border-gray-300 text-[#A04545] focus:ring-[#A04545] accent-[#A04545]"
+                                            >
+                                            <span class="text-xs font-semibold text-[#4A2C2A]/80" x-text="snack"></span>
+                                        </div>
 
-                <div>
-                    <h4 class="text-[10px] font-bold text-[#A04545] uppercase tracking-wider mb-2.5 px-1">
-                        Pilihan Asin / Gurih
-                    </h4>
-
-                    <div class="bg-white rounded-2xl divide-y divide-black/[0.03] border border-black/5 overflow-hidden">
-                        <template x-for="snack in ['Lemper Ayam', 'Lontong Sayur', 'Risol Mayo', 'Pastel Ayam', 'Bakwan Udang', 'Martabak Telur Mini', 'Kroket Kentang']">
-                            <label class="flex items-center justify-between p-4 cursor-pointer hover:bg-[#FAF6F0]/30 transition-colors">
-                                <div class="flex items-center justify-between w-full">
-                                    <div class="flex items-center gap-3.5">
-                                        <input
-                                            type="checkbox"
-                                            :disabled="!selectedSnacks.includes(snack) && selectedSnacks.length >= maxIsian"
-                                            :checked="selectedSnacks.includes(snack)"
-                                            @change="toggleSnack(snack)"
-                                            class="w-4 h-4 rounded border-gray-300 text-[#A04545] focus:ring-[#A04545] accent-[#A04545]"
-                                        >
-                                        <span class="text-xs font-semibold text-[#4A2C2A]/80" x-text="snack"></span>
+                                        <span class="text-[10px] text-[#4A2C2A]/40 font-medium tracking-wide">
+                                            Gurih
+                                        </span>
                                     </div>
-
-                                    <span class="text-[10px] text-[#4A2C2A]/40 font-medium tracking-wide">
-                                        Gurih
-                                    </span>
-                                </div>
-                            </label>
-                        </template>
+                                </label>
+                            </template>
+                        </div>
                     </div>
-                </div>
 
-                <div>
-                    <h4 class="text-[10px] font-bold text-[#A04545] uppercase tracking-wider mb-2.5 px-1">
-                        Pilihan Manis & Tradisional
-                    </h4>
+                    <div>
+                        <h4 class="text-[10px] font-bold text-[#A04545] uppercase tracking-wider mb-2.5 px-1">
+                            Pilihan Manis & Tradisional
+                        </h4>
 
-                    <div class="bg-white rounded-2xl divide-y divide-black/[0.03] border border-black/5 overflow-hidden">
-                        <template x-for="snack in ['Cente Manis', 'Kue Talam Pandan', 'Nona Manis', 'Donat Gula', 'Ketan Serundeng', 'Kue Lapis', 'Nagasari']">
-                            <label class="flex items-center justify-between p-4 cursor-pointer hover:bg-[#FAF6F0]/30 transition-colors">
-                                <div class="flex items-center justify-between w-full">
-                                    <div class="flex items-center gap-3.5">
-                                        <input
-                                            type="checkbox"
-                                            :disabled="!selectedSnacks.includes(snack) && selectedSnacks.length >= maxIsian"
-                                            :checked="selectedSnacks.includes(snack)"
-                                            @change="toggleSnack(snack)"
-                                            class="w-4 h-4 rounded border-gray-300 text-[#A04545] focus:ring-[#A04545] accent-[#A04545]"
-                                        >
-                                        <span class="text-xs font-semibold text-[#4A2C2A]/80" x-text="snack"></span>
+                        <div class="bg-white rounded-2xl divide-y divide-black/[0.03] border border-black/5 overflow-hidden">
+                            <template x-for="snack in ['Cente Manis', 'Kue Talam Pandan', 'Nona Manis', 'Donat Gula', 'Ketan Serundeng', 'Kue Lapis', 'Nagasari']" :key="snack">
+                                <label class="flex items-center justify-between p-4 cursor-pointer hover:bg-[#FAF6F0]/30 transition-colors">
+                                    <div class="flex items-center justify-between w-full">
+                                        <div class="flex items-center gap-3.5">
+                                            <input
+                                                type="checkbox"
+                                                :disabled="!selectedSnacks.includes(snack) && selectedSnacks.length >= maxIsian"
+                                                :checked="selectedSnacks.includes(snack)"
+                                                @change="toggleSnack(snack)"
+                                                class="w-4 h-4 rounded border-gray-300 text-[#A04545] focus:ring-[#A04545] accent-[#A04545]"
+                                            >
+                                            <span class="text-xs font-semibold text-[#4A2C2A]/80" x-text="snack"></span>
+                                        </div>
+
+                                        <span class="text-[10px] text-orange-600/50 font-medium tracking-wide">
+                                            Manis
+                                        </span>
                                     </div>
-
-                                    <span class="text-[10px] text-orange-600/50 font-medium tracking-wide">
-                                        Manis
-                                    </span>
-                                </div>
-                            </label>
-                        </template>
+                                </label>
+                            </template>
+                        </div>
                     </div>
+
                 </div>
 
-            </div>
-
-            <div class="p-5 bg-white border-t border-black/5">
-                <button
-                    :disabled="selectedSnacks.length === 0"
-                    class="w-full bg-[#A04545] hover:bg-[#853737] text-white py-3.5 rounded-2xl font-bold text-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer tracking-wide shadow-xs"
-                >
-                    Tambah Pesanan - Rp <span x-text="selectedHarga.toLocaleString('id-ID')"></span>
-                </button>
-            </div>
+                <div class="p-5 bg-white border-t border-black/5">
+                    <button
+                        type="submit"
+                        :disabled="selectedSnacks.length !== maxIsian"
+                        class="w-full bg-[#A04545] hover:bg-[#853737] text-white py-3.5 rounded-2xl font-bold text-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer tracking-wide shadow-xs"
+                    >
+                        Tambah Pesanan - Rp <span x-text="selectedHarga.toLocaleString('id-ID')"></span>
+                    </button>
+                </div>
+            </form>
 
         </div>
     </div>

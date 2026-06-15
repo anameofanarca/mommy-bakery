@@ -13,86 +13,155 @@ use Illuminate\Support\Str;
 class CheckoutController extends Controller
 {
     /**
-     * Menampilkan halaman checkout (mengambil data dari session cart).
+     * Ambil item cart dan hitung subtotal.
+     */
+    private function getCartData()
+    {
+        $cart = session('cart', []);
+
+        $items = [];
+        $subtotal = 0;
+
+        foreach ($cart as $cartKey => $cartItem) {
+            if (is_numeric($cartItem)) {
+                $productId = $cartKey;
+                $qty = (int) $cartItem;
+                $selectedItems = [];
+            } else {
+                $productId = $cartItem['product_id'] ?? null;
+                $qty = (int) ($cartItem['qty'] ?? 1);
+                $selectedItems = $cartItem['selected_items'] ?? [];
+            }
+
+            $product = Product::find($productId);
+
+            if (!$product) {
+                continue;
+            }
+
+            $line = $product->price * $qty;
+
+            $items[] = [
+                'cart_key' => $cartKey,
+                'product_id' => $product->id,
+                'product' => $product,
+                'qty' => $qty,
+                'subtotal' => $line,
+                'selected_items' => $selectedItems,
+            ];
+
+            $subtotal += $line;
+        }
+
+        return [
+            'items' => $items,
+            'subtotal' => $subtotal,
+        ];
+    }
+
+    /**
+     * Halaman checkout: isi data pemesan.
      */
     public function create()
     {
         $cart = session('cart', []);
 
         if (empty($cart)) {
-            return redirect()->route('cart.index')->with('error', 'Keranjang belanja Anda kosong.');
+            return redirect()
+                ->route('cart.index')
+                ->with('error', 'Keranjang belanja Anda kosong.');
         }
 
-        $items = [];
-        $subtotal = 0;
+        $cartData = $this->getCartData();
 
-        foreach ($cart as $productId => $qty) {
-            $product = Product::find($productId);
-            if ($product) {
-                $line = $product->price * $qty;
-                $items[] = [
-                    'product_id' => $product->id,
-                    'product' => $product, // untuk ditampilkan di view
-                    'qty' => $qty,
-                    'subtotal' => $line,
-                ];
-                $subtotal += $line;
-            }
-        }
+        $items = $cartData['items'];
+        $subtotal = $cartData['subtotal'];
 
-        $deliveryFee = 10000; // Contoh sederhana, bisa disesuaikan
+        $deliveryFee = 0;
         $total = $subtotal + $deliveryFee;
 
         return view('checkout', compact('items', 'subtotal', 'deliveryFee', 'total'));
     }
-    public function store(Request $request)
+
+    /**
+     * Setelah checkout, langsung buat order dan lanjut ke pembayaran QRIS.
+     */
+    public function saveCheckoutData(Request $request)
     {
         $data = $request->validate([
-            'customer_name' => ['required','string','max:255'],
-            'phone' => ['required','string','max:30'],
-            'email' => ['nullable','email','max:255'],
-            'delivery_type' => ['required','in:pickup,delivery'],
-            'address' => ['nullable','string'],
-            'schedule_at' => ['nullable','date'],
-            'note' => ['nullable','string'],
-            'payment_method' => ['required','string'],
-
-            'items' => ['required','array','min:1'],
-            'items.*.product_id' => ['required','integer','exists:products,id'],
-            'items.*.qty' => ['required','integer','min:1'],
-            'items.*.note' => ['nullable','string'],
+            'customer_name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:30'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'delivery_type' => ['required', 'in:pickup,delivery'],
+            'address' => ['nullable', 'string'],
+            'schedule_at' => ['nullable', 'date'],
+            'note' => ['nullable', 'string'],
         ]);
 
         if ($data['delivery_type'] === 'delivery' && empty($data['address'])) {
-            return response()->json(['message' => 'Address is required for delivery'], 422);
+            return back()
+                ->withErrors(['address' => 'Alamat wajib diisi jika memilih delivery.'])
+                ->withInput();
         }
 
-        return DB::transaction(function () use ($data) {
+        $cart = session('cart', []);
+
+        if (empty($cart)) {
+            return redirect()
+                ->route('cart.index')
+                ->with('error', 'Keranjang belanja Anda kosong.');
+        }
+
+        return DB::transaction(function () use ($cart, $data) {
             $orderCode = 'MB-' . now()->format('Ymd') . '-' . strtoupper(Str::random(5));
 
             $subtotal = 0;
             $itemsPayload = [];
 
-            $productIds = collect($data['items'])->pluck('product_id')->all();
-            $products = Product::query()->whereIn('id', $productIds)->get()->keyBy('id');
+            foreach ($cart as $cartKey => $cartItem) {
+                if (is_numeric($cartItem)) {
+                    $productId = $cartKey;
+                    $qty = (int) $cartItem;
+                    $selectedItems = [];
+                } else {
+                    $productId = $cartItem['product_id'] ?? null;
+                    $qty = (int) ($cartItem['qty'] ?? 1);
+                    $selectedItems = $cartItem['selected_items'] ?? [];
+                }
 
-            foreach ($data['items'] as $item) {
-                $product = $products[$item['product_id']];
-                $line = $product->price * (int)$item['qty'];
+                $product = Product::find($productId);
+
+                if (!$product) {
+                    continue;
+                }
+
+                $line = $product->price * $qty;
                 $subtotal += $line;
+
+                $itemNote = null;
+
+                if (!empty($selectedItems)) {
+                    $itemNote = 'Pilihan Snack Box: ' . implode(', ', $selectedItems);
+                }
 
                 $itemsPayload[] = [
                     'product_id' => $product->id,
                     'product_name_snapshot' => $product->name,
                     'price_snapshot' => $product->price,
-                    'qty' => (int)$item['qty'],
-                    'note' => $item['note'] ?? null,
+                    'qty' => $qty,
+                    'note' => $itemNote,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
             }
 
-            $deliveryFee = ($data['delivery_type'] === 'delivery') ? 10000 : 0; // rule sederhana
+            if (empty($itemsPayload)) {
+                return redirect()
+                    ->route('cart.index')
+                    ->with('error', 'Produk di keranjang tidak valid.');
+            }
+
+            $deliveryFee = ($data['delivery_type'] === 'delivery') ? 10000 : 0;
             $total = $subtotal + $deliveryFee;
 
             $order = Order::create([
@@ -107,27 +176,42 @@ class CheckoutController extends Controller
                 'subtotal' => $subtotal,
                 'delivery_fee' => $deliveryFee,
                 'total' => $total,
-                'payment_method' => $data['payment_method'],
+                'payment_method' => 'qris',
                 'status' => 'pending_payment',
             ]);
 
             foreach ($itemsPayload as &$row) {
                 $row['order_id'] = $order->id;
             }
+
             OrderItem::insert($itemsPayload);
 
             Payment::create([
                 'order_id' => $order->id,
-                'method' => $data['payment_method'],
+                'method' => 'qris',
                 'status' => 'unverified',
             ]);
 
-            return response()->json([
-                'order_id' => $order->id,
-                'order_code' => $order->order_code,
-                'payment_url' => route('orders.payment.show', $order),
-                'whatsapp_url' => route('orders.whatsapp', $order),
-            ], 201);
+            session()->forget('cart');
+            session()->forget('checkout_data');
+
+            return redirect()->route('payment.show', $order->id);
         });
+    }
+
+    /**
+     * Halaman payment method lama sudah tidak dipakai.
+     */
+    public function payment()
+    {
+        return redirect()->route('checkout.create');
+    }
+
+    /**
+     * Method lama tidak dipakai karena sekarang payment method otomatis QRIS.
+     */
+    public function store(Request $request)
+    {
+        return redirect()->route('checkout.create');
     }
 }

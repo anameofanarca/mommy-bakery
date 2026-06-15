@@ -51,7 +51,7 @@ class AdminProductController extends Controller
             'price'       => (int) $price,
             'description' => $request->description,
             'image_url'   => $imagePath,
-            'is_active'   => true,
+            'is_active'   => $request->boolean('is_active'),
             'stock'       => $request->stock ?? 0,
         ]);
 
@@ -94,7 +94,7 @@ class AdminProductController extends Controller
             'price'       => (int) $price,
             'description' => $request->description,
             'image_url'   => $imagePath,
-            'is_active'   => true,
+            'is_active'   => $request->boolean('is_active'),
             'stock'       => $request->stock ?? 0,
         ]);
 

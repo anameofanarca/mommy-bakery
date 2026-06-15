@@ -121,6 +121,13 @@
 
             <section class="product-grid">
 
+                {{-- Card Add New Product selalu di atas --}}
+                <a href="{{ route('admin.product.create') }}" class="add-product-card">
+                    <div class="add-icon">+</div>
+                    <h3>Add New<br>Product</h3>
+                    <p>Add a bakery item or catering package</p>
+                </a>
+
                 @forelse($products as $product)
                     <div class="product-card-admin">
 
@@ -174,16 +181,8 @@
                         </div>
                     </div>
                 @empty
-                    <div class="col-span-full text-center py-16 text-gray-400">
-                        <p class="text-sm font-medium">Belum ada produk di kategori ini</p>
-                    </div>
+                    <p style="font-size: 13px; color: #888; grid-column: 1/-1;">Belum ada produk di kategori ini</p>
                 @endforelse
-
-                <a href="{{ route('admin.product.create') }}" class="add-product-card">
-                    <div class="add-icon">+</div>
-                    <h3>Add New<br>Product</h3>
-                    <p>Add a bakery item or catering package</p>
-                </a>
 
             </section>
         </main>
