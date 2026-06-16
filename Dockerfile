@@ -26,6 +26,8 @@ RUN composer install --no-dev --optimize-autoloader
 RUN npm install
 RUN npm run build
 
+RUN chown -R www-data:www-data /var/www/html
+RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 RUN rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-available/default
 
