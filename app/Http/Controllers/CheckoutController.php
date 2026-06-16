@@ -186,6 +186,23 @@ class CheckoutController extends Controller
 
             OrderItem::insert($itemsPayload);
 
+            // Kurangi stok produk
+            foreach ($cart as $cartKey => $cartItem) {
+                if (is_numeric($cartItem)) {
+                    $productId = $cartKey;
+                    $qty = (int) $cartItem;
+                } else {
+                    $productId = $cartItem['product_id'] ?? null;
+                    $qty = (int) ($cartItem['qty'] ?? 1);
+                }
+
+                if ($productId) {
+                    Product::where('id', $productId)
+                        ->where('stock', '>', 0)
+                        ->decrement('stock', $qty);
+                }
+            }
+
             Payment::create([
                 'order_id' => $order->id,
                 'method' => 'qris',

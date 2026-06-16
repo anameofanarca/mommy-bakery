@@ -18,11 +18,6 @@
                 <img src="{{ asset('images/admin/products.png') }}" alt="Products">
                 Products
             </a>
-
-            <a href="{{ url('/admin/payments') }}" class="{{ request()->is('admin/payments') ? 'active' : '' }}">
-                <img src="{{ asset('images/admin/payments.png') }}" alt="Payments">
-                Payments
-            </a>
         </nav>
     </div>
 
