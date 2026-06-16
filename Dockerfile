@@ -30,6 +30,4 @@ RUN rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-available/default
 
 COPY ./nginx.conf /etc/nginx/sites-enabled/default
 
-EXPOSE 8080
-
-CMD sh -c "php artisan optimize:clear && php artisan config:cache && php artisan view:cache" && php-fpm & nginx -g 'daemon off;'
+CMD sh -c "sed -i 's/listen 80;/listen '"$PORT"';/g' /etc/nginx/sites-enabled/default && php artisan optimize:clear && php artisan config:cache && php artisan view:cache && php-fpm -D && nginx -g 'daemon off;'"
