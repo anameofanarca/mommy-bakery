@@ -32,4 +32,4 @@ COPY ./nginx.conf /etc/nginx/sites-available/default
 
 EXPOSE 8080
 
-CMD sh -c "php artisan optimize:clear && php artisan config:cache && php artisan view:cache && php-fpm & nginx -g 'daemon off;'"
+CMD sh -c "php artisan optimize:clear && php artisan config:cache && php artisan view:cache && service nginx start && php-fpm"
