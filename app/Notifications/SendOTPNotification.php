@@ -12,29 +12,25 @@ class SendOTPNotification extends Notification
 
     protected $otp;
 
-    // 1. Tangkap kode OTP dari Controller saat fungsi ini dipanggil
     public function __construct($otp)
     {
         $this->otp = $otp;
     }
 
-    // 2. Tentukan bahwa notifikasi ini dikirim via Email (mail)
     public function via(object $notifiable): array
     {
         return ['mail'];
     }
 
-    // 3. Desain isi emailnya
-// 3. Desain isi emailnya
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject('Kode OTP Mommy Bakery Kamu')
-                    ->greeting('Halo!')
-                    ->line('Kami menerima permintaan untuk melakukan reset password akun Mommy Bakery Anda.')
-                    ->line('Berikut adalah kode OTP Anda untuk melanjutkan:')
-                    ->line('## ' . $this->otp) // Menggunakan format Markdown '##' agar teks berukuran besar (Header)
-                    ->line('Kode ini rahasia dan hanya berlaku selama 1 menit.')
-                    ->line('Jika Anda tidak merasa meminta kode ini, abaikan saja email ini.');
+            ->subject('Kode OTP Mommy Bakery Kamu')
+            ->greeting('Halo!')
+            ->line('Kami menerima permintaan verifikasi akun Mommy Catering & Bakery.')
+            ->line('Berikut adalah kode OTP Anda:')
+            ->line('## ' . $this->otp)
+            ->line('Kode ini rahasia dan hanya berlaku dalam waktu terbatas.')
+            ->line('Jika Anda tidak merasa melakukan permintaan ini, abaikan email ini.');
     }
 }

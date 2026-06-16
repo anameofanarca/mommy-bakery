@@ -49,23 +49,37 @@
         <!-- ICONS -->
         <div class="flex items-center gap-5 text-[#4A2C2A]">
 
-            <!-- SEARCH -->
-            <a href="{{ url('/products') }}"
-               class="{{ request()->is('products*') ? 'text-[#8B3A3A]' : 'hover:text-[#8B3A3A] transition' }}">
+            <div x-data="{ open: false }" class="flex items-center" @click.away="open = false">
+                <form action="{{ route('menu.index') }}" method="GET" class="flex items-center">
+                    <input
+                        type="text"
+                        name="search"
+                        value="{{ request('search') }}"
+                        x-show="open"
+                        x-transition
+                        placeholder="Cari produk apa saja..."
+                        class="bg-[#EFE7D8] text-sm text-[#4A2C2A] placeholder-gray-400 rounded-full px-4 py-2 mr-2 w-40 md:w-60 focus:outline-none focus:ring-1 focus:ring-[#8B3A3A]"
+                    >
 
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     fill="none"
-                     viewBox="0 0 24 24"
-                     stroke-width="1.8"
-                     stroke="currentColor"
-                     class="w-5 h-5">
+                    <button
+                        type="button"
+                        @click="open = !open"
+                        class="{{ request()->is('menu*') ? 'text-[#8B3A3A]' : 'hover:text-[#8B3A3A] transition' }}"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.8"
+                            stroke="currentColor"
+                            class="w-5 h-5">
 
-                    <path stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6 16.65a7.5 7.5 0 0 0 10.65 0Z" />
-                </svg>
-
-            </a>
+                            <path stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6 16.65a7.5 7.5 0 0 0 10.65 0Z" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
 
             <!-- CART -->
             @auth

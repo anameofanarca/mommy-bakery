@@ -197,6 +197,7 @@ class CheckoutController extends Controller
 
             OrderItem::insert($itemsPayload);
 
+            // Kurangi stok produk
             foreach ($cart as $cartKey => $cartItem) {
                 if (is_numeric($cartItem)) {
                     $productId = $cartKey;

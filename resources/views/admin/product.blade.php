@@ -15,31 +15,18 @@
             border-radius: 4px;
             margin-top: 6px;
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> 23362ea (bakery layout admin masih blm)
         .status-live {
             background-color: #e0f2fe;
             color: #0369a1;
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> 23362ea (bakery layout admin masih blm)
         .status-draft {
             background-color: #f3f4f6;
             color: #4b5563;
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> 23362ea (bakery layout admin masih blm)
         .badge-out-of-stock {
             background-color: #fee2e2 !important;
             color: #991b1b !important;
         }
-<<<<<<< HEAD
 
         .product-tabs a {
             min-width: 130px;
@@ -75,8 +62,6 @@
         .admin-product-title-link:hover h3 {
             text-decoration: underline;
         }
-=======
->>>>>>> 23362ea (bakery layout admin masih blm)
     </style>
 </head>
 
@@ -136,53 +121,68 @@
 
             <section class="product-grid">
 
-                @foreach($products as $product)
-                <div class="product-card-admin">
-                    <div class="product-card-image">
-                        
-                        @if($product->stock > 0)
-                            <span class="stock-badge in-stock">In Stock</span>
-                        @else
-                            <span class="stock-badge inactive badge-out-of-stock">Out of Stock</span>
-                        @endif
-
-                        <img src="{{ $product->image_url ? asset('storage/' . $product->image_url) : asset('images/product/default.png') }}"
-                             alt="{{ $product->name }}">
-                    </div>
-                    
-                    <div class="product-card-info">
-                        <div class="product-card-title-row">
-                            <h3>{{ $product->name }}</h3>
-                            <span class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
-                        </div>
-                        <span class="product-meta">{{ strtoupper($product->category) }} • {{ $product->stock ?? 0 }} UNITS</span>
-                        
-                        <div>
-                            @if($product->is_active)
-                                <span class="visibility-badge status-live">● Live di Web</span>
-                            @else
-                                <span class="visibility-badge status-draft">○ Sembunyi (Draft)</span>
-                            @endif
-                        </div>
-                    </div>
-                    
-                    <div class="product-card-actions">
-                        <a href="{{ route('admin.product.edit', $product->id) }}" class="btn-edit">Edit</a>
-                        <form action="{{ route('admin.product.destroy', $product->id) }}" method="POST"
-                              onsubmit="return confirm('Hapus produk ini?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn-delete">🗑</button>
-                        </form>
-                    </div>
-                </div>
-                @endforeach
-
+                {{-- Card Add New Product selalu di atas --}}
                 <a href="{{ route('admin.product.create') }}" class="add-product-card">
                     <div class="add-icon">+</div>
                     <h3>Add New<br>Product</h3>
                     <p>Add a bakery item or catering package</p>
                 </a>
+
+                @forelse($products as $product)
+                    <div class="product-card-admin">
+
+                        <a href="{{ route('product.show', $product->id) }}" class="product-card-image">
+                            @if($product->stock > 0)
+                                <span class="stock-badge in-stock">In Stock</span>
+                            @else
+                                <span class="stock-badge inactive badge-out-of-stock">Out of Stock</span>
+                            @endif
+
+                            <img src="{{ $product->image_url ? asset('storage/' . $product->image_url) : asset('images/product/default.png') }}"
+                                 alt="{{ $product->name }}">
+                        </a>
+                        
+                        <div class="product-card-info">
+                            <div class="product-card-title-row">
+                                <a href="{{ route('product.show', $product->id) }}" class="admin-product-title-link">
+                                    <h3>{{ $product->name }}</h3>
+                                </a>
+
+                                <span class="product-price">
+                                    Rp {{ number_format($product->price, 0, ',', '.') }}
+                                </span>
+                            </div>
+
+                            <span class="product-meta">
+                                {{ strtoupper($product->category) }} • {{ $product->stock ?? 0 }} UNITS
+                            </span>
+                            
+                            <div>
+                                @if($product->is_active)
+                                    <span class="visibility-badge status-live">● Live di Web</span>
+                                @else
+                                    <span class="visibility-badge status-draft">○ Sembunyi (Draft)</span>
+                                @endif
+                            </div>
+                        </div>
+                        
+                        <div class="product-card-actions">
+                            <a href="{{ route('admin.product.edit', $product->id) }}" class="btn-edit">
+                                Edit
+                            </a>
+
+                            <form action="{{ route('admin.product.destroy', $product->id) }}" method="POST"
+                                  onsubmit="return confirm('Hapus produk ini?')">
+                                @csrf
+                                @method('DELETE')
+
+                                <button type="submit" class="btn-delete">🗑</button>
+                            </form>
+                        </div>
+                    </div>
+                @empty
+                    <p style="font-size: 13px; color: #888; grid-column: 1/-1;">Belum ada produk di kategori ini</p>
+                @endforelse
 
             </section>
         </main>

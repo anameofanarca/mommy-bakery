@@ -21,6 +21,8 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Handle an incoming authentication request.
+     * Setelah email dan password benar, user belum langsung login penuh.
+     * Sistem simpan user_id ke session lalu arahkan ke halaman OTP.
      */
     public function store(LoginRequest $request): RedirectResponse
     {
@@ -28,7 +30,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // ❌ jangan full login flow
         session([
             'otp_user_id' => Auth::id(),
         ]);

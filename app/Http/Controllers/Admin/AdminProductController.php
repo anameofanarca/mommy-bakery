@@ -10,16 +10,16 @@ use Illuminate\Support\Facades\Storage;
 class AdminProductController extends Controller
 {
     public function index(Request $request)
-{
-    $products = Product::query()
-        ->when($request->category, function ($query) use ($request) {
-            $query->where('category', $request->category);
-        })
-        ->orderBy('id', 'desc')
-        ->get();
+    {
+        $products = Product::query()
+            ->when($request->category, function ($query) use ($request) {
+                $query->where('category', $request->category);
+            })
+            ->orderBy('id', 'desc')
+            ->get();
 
-    return view('admin.product', compact('products'));
-}
+        return view('admin.product', compact('products'));
+    }
 
     public function create()
     {
@@ -29,12 +29,12 @@ class AdminProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'        => 'required|string|max:255',
-            'category'    => 'required|string',
-            'price'       => 'required|numeric',
-            'description' => 'nullable|string',
-            'image'       => 'nullable|image|max:2048',
-            'stock'       => 'required|integer|min:0', 
+            'product_name'  => 'required|string|max:255',
+            'category'      => 'required|string',
+            'price'         => 'required',
+            'description'   => 'nullable|string',
+            'product_image' => 'nullable|image|max:2048',
+            'stock'         => 'required|integer|min:0',
         ]);
 
         $imagePath = null;
@@ -51,9 +51,8 @@ class AdminProductController extends Controller
             'price'       => (int) $price,
             'description' => $request->description,
             'image_url'   => $imagePath,
-            // Perbaikan Utama: Membaca string '1' atau '0' langsung dari form HTML kamu
-            'is_active'   => $request->is_active == '1' ? true : false, 
-            'stock'       => $request->stock ?? 0,       
+            'is_active'   => $request->is_active == '1' ? true : false,
+            'stock'       => $request->stock ?? 0,
         ]);
 
         return redirect()
@@ -69,12 +68,12 @@ class AdminProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $request->validate([
-            'name'        => 'required|string|max:255',
-            'category'    => 'required|string',
-            'price'       => 'required|numeric',
-            'description' => 'nullable|string',
-            'image'       => 'nullable|image|max:2048',
-            'stock'       => 'required|integer|min:0', 
+            'product_name'  => 'required|string|max:255',
+            'category'      => 'required|string',
+            'price'         => 'required',
+            'description'   => 'nullable|string',
+            'product_image' => 'nullable|image|max:2048',
+            'stock'         => 'required|integer|min:0',
         ]);
 
         $imagePath = $product->image_url;
@@ -95,7 +94,6 @@ class AdminProductController extends Controller
             'price'       => (int) $price,
             'description' => $request->description,
             'image_url'   => $imagePath,
-            // Perbaikan Utama: Diterapkan juga pada fungsi update produk
             'is_active'   => $request->is_active == '1' ? true : false,
             'stock'       => $request->stock ?? 0,
         ]);
@@ -106,18 +104,19 @@ class AdminProductController extends Controller
     }
 
     public function destroy(Product $product)
-        {
-            if ($product->image_url) {
-                Storage::disk('public')->delete($product->image_url);
-            }
-
-            // Hapus order items yang terkait dulu
-            $product->orderItems()->delete();
-
-            $product->delete();
-
-            return redirect()
-                ->route('admin.product')
-                ->with('success', 'Produk berhasil dihapus!');
+    {
+        if ($product->image_url) {
+            Storage::disk('public')->delete($product->image_url);
         }
+
+        if (method_exists($product, 'orderItems')) {
+            $product->orderItems()->delete();
+        }
+
+        $product->delete();
+
+        return redirect()
+            ->route('admin.product')
+            ->with('success', 'Produk berhasil dihapus!');
+    }
 }
