@@ -106,15 +106,18 @@ class AdminProductController extends Controller
     }
 
     public function destroy(Product $product)
-    {
-        if ($product->image_url) {
-            Storage::disk('public')->delete($product->image_url);
+        {
+            if ($product->image_url) {
+                Storage::disk('public')->delete($product->image_url);
+            }
+
+            // Hapus order items yang terkait dulu
+            $product->orderItems()->delete();
+
+            $product->delete();
+
+            return redirect()
+                ->route('admin.product')
+                ->with('success', 'Produk berhasil dihapus!');
         }
-
-        $product->delete();
-
-        return redirect()
-            ->route('admin.product')
-            ->with('success', 'Produk berhasil dihapus!');
-    }
 }

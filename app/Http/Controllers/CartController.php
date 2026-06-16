@@ -18,13 +18,11 @@ class CartController extends Controller
         $total = 0;
 
         foreach ($cart as $cartKey => $cartItem) {
-            // Support cart lama: [productId => qty]
             if (is_numeric($cartItem)) {
                 $productId = $cartKey;
                 $qty = (int) $cartItem;
                 $selectedItems = [];
             } else {
-                // Support cart baru: [cartKey => ['product_id', 'qty', 'selected_items']]
                 $productId = $cartItem['product_id'] ?? null;
                 $qty = (int) ($cartItem['qty'] ?? 1);
                 $selectedItems = $cartItem['selected_items'] ?? [];
@@ -59,12 +57,30 @@ class CartController extends Controller
     {
         $product = Product::findOrFail($id);
 
+        // Cek stok habis
+        if ($product->stock <= 0) {
+            return redirect()->back()->with('error', 'Maaf, produk ini sedang habis.');
+        }
+
         $cart = session('cart', []);
 
         $qty = (int) $request->input('qty', 1);
 
         if ($qty < 1) {
             $qty = 1;
+        }
+
+        // Cek qty tidak melebihi stok
+        if ($qty > $product->stock) {
+            return redirect()->back()->with('error', 'Maaf, stok tidak mencukupi. Stok tersedia: ' . $product->stock . ' pcs.');
+        }
+
+        // Cek kalau produk sudah ada di cart, total qty tidak boleh melebihi stok
+        if (isset($cart[$id])) {
+            $existingQty = is_numeric($cart[$id]) ? $cart[$id] : ($cart[$id]['qty'] ?? 0);
+            if (($existingQty + $qty) > $product->stock) {
+                return redirect()->back()->with('error', 'Maaf, stok tidak mencukupi. Stok tersedia: ' . $product->stock . ' pcs, sudah ada ' . $existingQty . ' di keranjang.');
+            }
         }
 
         $selectedItems = $request->input('selected_items', []);
@@ -77,7 +93,6 @@ class CartController extends Controller
             $selectedItems = [];
         }
 
-        // Kalau ada pilihan snack box, bikin key unik supaya pilihan berbeda tidak ketimpa
         if (!empty($selectedItems)) {
             $cartKey = $id . '_' . md5(json_encode($selectedItems));
 
@@ -91,7 +106,6 @@ class CartController extends Controller
                 ];
             }
         } else {
-            // Produk biasa tetap pakai format lama agar aman
             if (isset($cart[$id])) {
                 if (is_numeric($cart[$id])) {
                     $cart[$id] += $qty;
@@ -121,6 +135,14 @@ class CartController extends Controller
 
         if (!isset($cart[$cartKey])) {
             return redirect()->route('cart.index');
+        }
+
+        // Ambil product id untuk cek stok
+        $productId = is_numeric($cart[$cartKey]) ? $cartKey : ($cart[$cartKey]['product_id'] ?? $cartKey);
+        $product = Product::find($productId);
+
+        if ($product && $qty > $product->stock) {
+            return redirect()->route('cart.index')->with('error', 'Stok tidak mencukupi. Stok tersedia: ' . $product->stock . ' pcs.');
         }
 
         if ($qty < 1) {

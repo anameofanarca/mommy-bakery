@@ -122,42 +122,29 @@
     </h2>
 
     <div class="grid md:grid-cols-3 gap-8">
-    <div class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition duration-300">
-    <img src="{{ asset('images/product/nasibox.jpeg') }}" alt="Nasi Box" class="w-full h-60 object-cover">
-    
-    <div class="p-6">
-        <h3 class="font-[Playfair_Display] text-2xl font-bold text-[#451C07] mb-2">Nasi Box</h3>
-        <p class="text-gray-600 text-sm mb-4">Praktis untuk acara kantor dan seminar</p>
-        <span class="block text-[#973035] font-bold text-lg mb-4">Mulai Rp 25.000</span>
-        <button class="w-full bg-[#973035] text-white py-3 rounded-xl font-semibold hover:bg-[#702e2e] transition">
-            Lihat Menu
-        </button>
-    </div>
-</div>
+        @foreach ($popularProducts as $product)
+        <div class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition duration-300">
+            <img src="{{ $product->image_url ? asset('storage/' . $product->image_url) : asset('images/product/default.png') }}"
+                alt="{{ $product->name }}"
+                class="w-full h-60 object-cover">
 
-<div class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition duration-300">
-    <img src="{{ asset('images/product/tumpeng.jpg') }}" alt="Tumpeng" class="w-full h-60 object-cover">
-    
-    <div class="p-6">
-        <h3 class="font-[Playfair_Display] text-2xl font-bold text-[#451C07] mb-2">Tumpeng</h3>
-        <p class="text-gray-600 text-sm mb-4">Cocok untuk syukuran dan acara tradisi</p>
-        <span class="block text-[#973035] font-bold text-lg mb-4">Mulai Rp 150.000</span>
-        <button class="w-full bg-[#973035] text-white py-3 rounded-xl font-semibold hover:bg-[#702e2e] transition">
-            Lihat Menu
-        </button>
-    </div>
-</div>
-
-<div class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition duration-300">
-    <img src="{{ asset('images/product/prasmanan.png') }}" alt="Prasmanan" class="w-full h-60 object-cover">
-    
-    <div class="p-6">
-        <h3 class="font-[Playfair_Display] text-2xl font-bold text-[#451C07] mb-2">Prasmanan</h3>
-        <p class="text-gray-600 text-sm mb-4">Ideal untuk pernikahan dan acara besar</p>
-        <span class="block text-[#973035] font-bold text-lg mb-4">Mulai Rp 1.250.000</span>
-        <button class="w-full bg-[#973035] text-white py-3 rounded-xl font-semibold hover:bg-[#702e2e] transition">
-            Lihat Menu
-        </button>
+            <div class="p-6">
+                <h3 class="font-[Playfair_Display] text-2xl font-bold text-[#451C07] mb-2">
+                    {{ $product->name }}
+                </h3>
+                <p class="text-gray-600 text-sm mb-4">
+                    {{ $product->description ?? 'Produk unggulan kami' }}
+                </p>
+                <span class="block text-[#973035] font-bold text-lg mb-4">
+                    Rp {{ number_format($product->price, 0, ',', '.') }}
+                </span>
+                <a href="{{ route('product.show', $product->id) }}"
+                class="block w-full text-center bg-[#973035] text-white py-3 rounded-xl font-semibold hover:bg-[#702e2e] transition">
+                    Lihat Menu
+                </a>
+            </div>
+        </div>
+        @endforeach
     </div>
 </div>
 </div>
