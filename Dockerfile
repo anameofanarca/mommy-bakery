@@ -26,8 +26,11 @@ RUN composer install --no-dev --optimize-autoloader
 RUN npm install
 RUN npm run build
 
+
 RUN rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-available/default
 
 COPY ./nginx.conf /etc/nginx/sites-enabled/default
 
-CMD sh -c "sed -i 's/listen 80;/listen '"$PORT"';/g' /etc/nginx/sites-enabled/default && php artisan optimize:clear && php artisan config:cache && php artisan view:cache && php-fpm -D && nginx -g 'daemon off;'"
+EXPOSE 8080
+
+CMD sh -c "php artisan optimize:clear && php artisan config:cache && php artisan view:cache && php-fpm -D && nginx -g 'daemon off;'"
