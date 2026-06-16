@@ -27,6 +27,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\OrderTrackingController;
 
 // ==========================================
 // MENU ROUTES
@@ -298,4 +299,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/product/{product}/edit', [AdminProductController::class, 'edit'])->name('product.edit');
     Route::patch('/product/{product}', [AdminProductController::class, 'update'])->name('product.update');
     Route::delete('/product/{product}', [AdminProductController::class, 'destroy'])->name('product.destroy');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::get('/my-orders', [OrderTrackingController::class, 'index'])->name('orders.tracking');
+    Route::get('/my-orders/{order}', [OrderTrackingController::class, 'show'])->name('orders.show');
 });

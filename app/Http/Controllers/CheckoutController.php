@@ -12,9 +12,6 @@ use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
-    /**
-     * Ambil item cart dan hitung subtotal.
-     */
     private function getCartData()
     {
         $cart = session('cart', []);
@@ -59,9 +56,6 @@ class CheckoutController extends Controller
         ];
     }
 
-    /**
-     * Halaman checkout: isi data pemesan.
-     */
     public function create()
     {
         $cart = session('cart', []);
@@ -77,15 +71,15 @@ class CheckoutController extends Controller
         $items = $cartData['items'];
         $subtotal = $cartData['subtotal'];
 
-        $deliveryFee = 0;
+        // Karena checkout kamu otomatis delivery, delivery fee langsung dihitung.
+        $deliveryFee = 10000;
         $total = $subtotal + $deliveryFee;
 
-        return view('checkout', compact('items', 'subtotal', 'deliveryFee', 'total'));
+        $user = auth()->user();
+
+        return view('checkout', compact('items', 'subtotal', 'deliveryFee', 'total', 'user'));
     }
 
-    /**
-     * Setelah checkout, langsung buat order dan lanjut ke pembayaran QRIS.
-     */
     public function saveCheckoutData(Request $request)
     {
         $data = $request->validate([
@@ -94,7 +88,11 @@ class CheckoutController extends Controller
             'email' => ['nullable', 'email', 'max:255'],
             'delivery_type' => ['required', 'in:pickup,delivery'],
             'address' => ['nullable', 'string'],
+            'city' => ['nullable', 'string', 'max:100'],
+            'postal_code' => ['nullable', 'string', 'max:20'],
             'schedule_at' => ['nullable', 'date'],
+            'event_date' => ['nullable', 'date'],
+            'event_time' => ['nullable'],
             'note' => ['nullable', 'string'],
         ]);
 
@@ -164,13 +162,24 @@ class CheckoutController extends Controller
             $deliveryFee = ($data['delivery_type'] === 'delivery') ? 10000 : 0;
             $total = $subtotal + $deliveryFee;
 
+            $fullAddress = $data['address'] ?? null;
+
+            if (!empty($data['city'])) {
+                $fullAddress .= "\nKota: " . $data['city'];
+            }
+
+            if (!empty($data['postal_code'])) {
+                $fullAddress .= "\nKode Pos: " . $data['postal_code'];
+            }
+
             $order = Order::create([
+                'user_id' => auth()->id(),
                 'order_code' => $orderCode,
                 'customer_name' => $data['customer_name'],
                 'phone' => $data['phone'],
                 'email' => $data['email'] ?? null,
                 'delivery_type' => $data['delivery_type'],
-                'address' => $data['address'] ?? null,
+                'address' => $fullAddress,
                 'schedule_at' => $data['schedule_at'] ?? null,
                 'note' => $data['note'] ?? null,
                 'subtotal' => $subtotal,
@@ -184,9 +193,10 @@ class CheckoutController extends Controller
                 $row['order_id'] = $order->id;
             }
 
+            unset($row);
+
             OrderItem::insert($itemsPayload);
 
-            // Kurangi stok produk
             foreach ($cart as $cartKey => $cartItem) {
                 if (is_numeric($cartItem)) {
                     $productId = $cartKey;
@@ -216,17 +226,11 @@ class CheckoutController extends Controller
         });
     }
 
-    /**
-     * Halaman payment method lama sudah tidak dipakai.
-     */
     public function payment()
     {
         return redirect()->route('checkout.create');
     }
 
-    /**
-     * Method lama tidak dipakai karena sekarang payment method otomatis QRIS.
-     */
     public function store(Request $request)
     {
         return redirect()->route('checkout.create');
