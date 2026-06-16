@@ -183,7 +183,7 @@
 
                         @if($product->image_url)
                             <div style="margin-bottom: 12px;">
-                                <img src="{{ asset('storage/' . $product->image_url) }}"
+                                <img src="{{ $product->image_src }}"
                                      alt="Gambar saat ini"
                                      style="width:100%; border-radius:8px; object-fit:cover; max-height:200px;">
                                 <p style="font-size:12px; color:#888; margin-top:6px; text-align:center;">Gambar saat ini</p>

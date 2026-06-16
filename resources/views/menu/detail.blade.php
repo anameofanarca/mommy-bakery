@@ -13,7 +13,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-start bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
         <div class="aspect-square w-full rounded-2xl overflow-hidden bg-[#FAF6F0] flex items-center justify-center border border-gray-100 p-6">
             <img 
-                src="{{ $product->image_url ? asset('storage/' . $product->image_url) : asset('images/product/default.png') }}" 
+                src="{{ $product->image_src }}"
                 alt="{{ $product->name }}" 
                 class="w-full h-full object-contain"
             >

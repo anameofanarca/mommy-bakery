@@ -32,7 +32,7 @@
 
     <div class="relative">
     <img 
-        src="{{ $bestSeller && $bestSeller->image_url ? asset('storage/' . $bestSeller->image_url) : asset('images/product/default.png') }}" 
+        src="{{ $bestSeller ? $bestSeller->image_src : asset('images/product/default.png') }}"
         alt="{{ $bestSeller?->name ?? 'Produk Unggulan' }}"
         class="rounded-[40px] shadow-xl w-full h-[550px] object-cover"
     >
@@ -125,7 +125,7 @@
     <div class="grid md:grid-cols-3 gap-8 items-stretch">
     @foreach ($popularProducts as $product)
     <div class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition duration-300 flex flex-col h-full">
-        <img src="{{ $product->image_url ? asset('storage/' . $product->image_url) : asset('images/product/default.png') }}"
+        <img src="{{ $product->image_src }}"
             alt="{{ $product->name }}"
             class="w-full h-60 object-cover">
 

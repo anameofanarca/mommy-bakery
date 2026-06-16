@@ -71,7 +71,7 @@
             <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col">
                 <div class="h-48 overflow-hidden bg-[#FAF6F0] flex items-center justify-center">
                     <img
-                        src="{{ $product->image_url ? asset('storage/' . $product->image_url) : asset('images/product/default.png') }}"
+                        src="{{ $product->image_src }}"
                         class="w-full h-full object-cover"
                         alt="{{ $product->name }}"
                     >

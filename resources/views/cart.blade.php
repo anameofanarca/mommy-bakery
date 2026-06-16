@@ -63,7 +63,7 @@
 
                     {{-- Gambar --}}
                     @if (!empty($item['product']->image_url))
-                        <img src="{{ asset('storage/' . $item['product']->image_url) }}"
+                        <img src="{{ $item['product']->image_src }}"
                             alt="{{ $item['product']->name }}"
                             class="w-24 h-24 rounded-lg object-cover shrink-0">
                     @endif

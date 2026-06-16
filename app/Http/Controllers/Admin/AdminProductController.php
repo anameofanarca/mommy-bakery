@@ -4,11 +4,33 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use Cloudinary\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AdminProductController extends Controller
 {
+    private function uploadToCloudinary($file): ?string
+    {
+        $cloudinaryUrl = env('CLOUDINARY_URL');
+
+        if (!$cloudinaryUrl) {
+            throw new \Exception('CLOUDINARY_URL belum diatur di file .env');
+        }
+
+        $cloudinary = new Cloudinary($cloudinaryUrl);
+
+        $uploadedFile = $cloudinary->uploadApi()->upload(
+            $file->getRealPath(),
+            [
+                'folder' => 'mommy-bakery/products',
+            ]
+        );
+
+        return $uploadedFile['secure_url'] ?? null;
+    }
+
     public function index(Request $request)
     {
         $products = Product::query()
@@ -40,7 +62,7 @@ class AdminProductController extends Controller
         $imagePath = null;
 
         if ($request->hasFile('product_image')) {
-            $imagePath = $request->file('product_image')->store('products', 'public');
+            $imagePath = $this->uploadToCloudinary($request->file('product_image'));
         }
 
         $price = str_replace(['.', ','], '', $request->price);
@@ -79,11 +101,11 @@ class AdminProductController extends Controller
         $imagePath = $product->image_url;
 
         if ($request->hasFile('product_image')) {
-            if ($imagePath) {
+            if ($imagePath && !Str::startsWith($imagePath, ['http://', 'https://'])) {
                 Storage::disk('public')->delete($imagePath);
             }
 
-            $imagePath = $request->file('product_image')->store('products', 'public');
+            $imagePath = $this->uploadToCloudinary($request->file('product_image'));
         }
 
         $price = str_replace(['.', ','], '', $request->price);
@@ -105,7 +127,7 @@ class AdminProductController extends Controller
 
     public function destroy(Product $product)
     {
-        if ($product->image_url) {
+        if ($product->image_url && !Str::startsWith($product->image_url, ['http://', 'https://'])) {
             Storage::disk('public')->delete($product->image_url);
         }
 

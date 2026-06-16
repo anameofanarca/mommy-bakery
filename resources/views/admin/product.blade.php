@@ -138,7 +138,7 @@
                                 <span class="stock-badge inactive badge-out-of-stock">Out of Stock</span>
                             @endif
 
-                            <img src="{{ $product->image_url ? asset('storage/' . $product->image_url) : asset('images/product/default.png') }}"
+                            <img src="{{ $product->image_src }}"
                                  alt="{{ $product->name }}">
                         </a>
                         
