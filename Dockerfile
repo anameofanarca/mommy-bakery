@@ -26,10 +26,12 @@ RUN composer install --no-dev --optimize-autoloader
 RUN npm install
 RUN npm run build
 
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html
 
 COPY ./nginx.conf /etc/nginx/sites-available/default
 
+RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
 EXPOSE 8080
 
-CMD sh -c "php artisan optimize:clear && php artisan config:cache && php artisan view:cache && service nginx start && php-fpm"
+CMD sh -c "php artisan optimize:clear && php artisan config:cache && php artisan view:cache && php-fpm -D && nginx -g 'daemon off;'"
