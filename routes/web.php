@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -32,8 +33,20 @@ use App\Http\Controllers\PaymentController;
 // MENU ROUTES
 // ==========================================
 
-Route::get('/menu', function () {
-    $products = Product::where('is_active', true)->latest()->get();
+Route::get('/menu', function (Request $request) {
+    $query = Product::where('is_active', true);
+
+    if ($search = $request->input('search')) {
+        $searchTerm = '%' . strtolower($search) . '%';
+
+        $query->where(function ($q) use ($searchTerm) {
+            $q->whereRaw('LOWER(name) LIKE ?', [$searchTerm])
+              ->orWhereRaw('LOWER(description) LIKE ?', [$searchTerm]);
+        });
+    }
+
+    $products = $query->latest()->get();
+
     return view('menu.index', compact('products'));
 })->name('menu.index');
 

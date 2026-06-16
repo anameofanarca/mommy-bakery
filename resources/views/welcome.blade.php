@@ -20,22 +20,23 @@
         </p>
 
         <div class="flex gap-4 mt-8">
-            <a href="#" class="bg-[#8B3A3A] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#702e2e] transition text-center">
-                Lihat Menu
-            </a>
-            <a href="#" class="border-2 border-[#451C07] text-[#451C07] px-6 py-3 rounded-xl font-semibold hover:bg-[#451C07] hover:text-white transition text-center">
+            <a href="{{ route('menu.index') }}" class="bg-[#8B3A3A] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#702e2e] transition text-center">
                 Pesan Sekarang
             </a>
         </div>
     </div>
 
+    @php
+    $bestSeller = $popularProducts->first();
+    @endphp
+
     <div class="relative">
     <img 
-        src="https://images.unsplash.com/photo-1578985545062-69928b1d9587" 
-        alt="Signature Chocolate Cake"
+        src="{{ $bestSeller && $bestSeller->image_url ? asset('storage/' . $bestSeller->image_url) : asset('images/product/default.png') }}" 
+        alt="{{ $bestSeller?->name ?? 'Produk Unggulan' }}"
         class="rounded-[40px] shadow-xl w-full h-[550px] object-cover"
     >
-    
+
     <div class="absolute -bottom-5 -left-5 bg-white p-5 rounded-3xl shadow-2xl border border-gray-100 flex items-center gap-4">
         
         <div class="w-14 h-14 bg-[#451C07] rounded-full flex items-center justify-center shrink-0">
@@ -46,11 +47,11 @@
 
         <div>
             <span class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Best Seller</span>
-            <h3 class="font-[Playfair_Display] text-2xl text-[#451C07] font-bold mt-1 leading-tight">Chocolate Cake</h3>
+            <h3 class="font-[Playfair_Display] text-2xl text-[#451C07] font-bold mt-1 leading-tight">{{ $bestSeller?->name ?? 'Belum ada data' }}</h3>
         </div>
 
     </div>
-</div>
+    </div>
 </section>
 
 <!-- FEATURES SECTION -->
@@ -121,20 +122,22 @@
         Paket Populer
     </h2>
 
-    <div class="grid md:grid-cols-3 gap-8">
-        @foreach ($popularProducts as $product)
-        <div class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition duration-300">
-            <img src="{{ $product->image_url ? asset('storage/' . $product->image_url) : asset('images/product/default.png') }}"
-                alt="{{ $product->name }}"
-                class="w-full h-60 object-cover">
+    <div class="grid md:grid-cols-3 gap-8 items-stretch">
+    @foreach ($popularProducts as $product)
+    <div class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition duration-300 flex flex-col h-full">
+        <img src="{{ $product->image_url ? asset('storage/' . $product->image_url) : asset('images/product/default.png') }}"
+            alt="{{ $product->name }}"
+            class="w-full h-60 object-cover">
 
-            <div class="p-6">
-                <h3 class="font-[Playfair_Display] text-2xl font-bold text-[#451C07] mb-2">
-                    {{ $product->name }}
-                </h3>
-                <p class="text-gray-600 text-sm mb-4">
-                    {{ $product->description ?? 'Produk unggulan kami' }}
-                </p>
+        <div class="p-6 flex flex-col flex-grow">
+            <h3 class="font-[Playfair_Display] text-2xl font-bold text-[#451C07] mb-2">
+                {{ $product->name }}
+            </h3>
+            <p class="text-gray-600 text-sm mb-4 line-clamp-3">
+                {{ $product->description ?? 'Produk unggulan kami' }}
+            </p>
+
+            <div class="mt-auto">
                 <span class="block text-[#973035] font-bold text-lg mb-4">
                     Rp {{ number_format($product->price, 0, ',', '.') }}
                 </span>
@@ -144,8 +147,9 @@
                 </a>
             </div>
         </div>
-        @endforeach
     </div>
+    @endforeach
+</div>
 </div>
 </div>
     </div>
@@ -191,7 +195,7 @@
     </li>
 </ul>
 
-            <a href="#" class="inline-block bg-[#973035] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#702e2e] transition">
+            <a href="{{ route('catering') }}" class="inline-block bg-[#973035] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#702e2e] transition">
                 Buat Penawaran Custom
             </a>
         </div>

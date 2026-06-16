@@ -42,23 +42,14 @@
         Menu Kami
     </h1>
 
-    <div class="flex flex-col md:flex-row md:items-center gap-4 mb-8">
-        <div class="relative w-full md:w-72">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z">
-                    </path>
-                </svg>
-            </span>
-
-            <input
-                type="text"
-                placeholder="Cari produk..."
-                class="w-full bg-[#EFE7D8] text-[#4A2C2A] placeholder-gray-400 rounded-lg pl-9 pr-4 py-2 text-xs border border-transparent focus:outline-none focus:ring-1 focus:ring-[#A04545]"
-            >
+    @if (request('search'))
+        <div class="mb-4 text-xs text-[#4A2C2A]">
+            Menampilkan hasil untuk "<strong>{{ request('search') }}</strong>"
+            <a href="{{ route('menu.index') }}" class="text-[#A04545] hover:underline ml-2">Hapus pencarian</a>
         </div>
+    @endif
 
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-8">
         <div class="flex flex-wrap gap-2 text-xs font-medium">
             <a href="{{ route('menu.index') }}"
                class="bg-[#A04545] text-white px-4 py-2 rounded-md transition-colors inline-block text-center shadow-sm">
@@ -90,6 +81,10 @@
                 Snack Box
             </a>
         </div>
+
+        <span class="text-xs text-gray-500 whitespace-nowrap">
+            Menampilkan {{ $products->count() }} produk
+        </span>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -321,4 +316,3 @@
 
 </div>
 @endsection
-
