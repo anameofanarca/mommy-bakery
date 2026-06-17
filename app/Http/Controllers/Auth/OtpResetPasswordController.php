@@ -11,7 +11,11 @@ use Illuminate\Support\Facades\Http;
 
 class OtpResetPasswordController extends Controller
 {
-    // generate dan kirim OTP ke WhatsApp
+    public function showLinkRequestForm()
+    {
+        return view('auth.forgot-password');
+    }
+
     public function sendOtp(Request $request)
     {
         $request->validate([
@@ -19,6 +23,11 @@ class OtpResetPasswordController extends Controller
         ]);
 
         $user = User::where('email', $request->email)->first();
+
+        if (!$user->phone) {
+            return back()->withErrors(['email' => 'Akun ditemukan, tetapi nomor WhatsApp Anda belum terdaftar di sistem kami.']);
+        }
+
         $otp = rand(100000, 999999);
 
         $user->update([
@@ -37,30 +46,34 @@ class OtpResetPasswordController extends Controller
                 'countryCode' => '62',
             ]);
 
-        return response()->json([
-            'message' => 'Kode OTP telah dikirim ke nomor WhatsApp Anda yang terdaftar.',
-            'email' => $request->email
+        return redirect()->route('password.reset', ['token' => $otp])
+            ->with('status', 'Kode OTP telah dikirim ke nomor WhatsApp Anda!')
+            ->with('email', $request->email);
+    }
+
+    public function showResetForm(Request $request, $token)
+    {
+        return view('auth.reset-password', [
+            'token' => $token, 
+            'email' => $request->email ?? session('email')
         ]);
     }
 
-    // verifikasi OTP dan ganti password baru
     public function verifyOtpAndReset(Request $request)
     {
         $request->validate([
             'email' => 'required|email|exists:users,email',
-            'otp' => 'required|numeric',
+            'token' => 'required|numeric',
             'password' => 'required|min:8|confirmed',
         ]);
 
         $user = User::where('email', $request->email)
-                    ->where('otp', $request->otp)
+                    ->where('otp', $request->token)
                     ->where('otp_expires_at', '>', Carbon::now())
                     ->first();
 
         if (!$user) {
-            return response()->json([
-                'message' => 'Kode OTP salah atau sudah kedaluwarsa!'
-            ], 422);
+            return back()->withErrors(['token' => 'Kode OTP salah atau sudah kedaluwarsa!']);
         }
 
         $user->update([
@@ -69,8 +82,6 @@ class OtpResetPasswordController extends Controller
             'otp_expires_at' => null,
         ]);
 
-        return response()->json([
-            'message' => 'Password berhasil diubah! Silakan login kembali.'
-        ]);
+        return redirect()->route('login')->with('status', 'Password berhasil diubah! Silakan login memakai password baru.');
     }
 }
