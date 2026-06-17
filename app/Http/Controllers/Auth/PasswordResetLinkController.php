@@ -12,17 +12,11 @@ use Illuminate\View\View;
 
 class PasswordResetLinkController extends Controller
 {
-    /**
-     * Display the password reset link request view.
-     */
     public function create(): View
     {
         return view('auth.forgot-password');
     }
 
-    /**
-     * Handle an incoming password reset link request.
-     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -32,7 +26,7 @@ class PasswordResetLinkController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user->phone) {
-            return back()->withErrors(['email' => 'Akun ditemukan, tetapi nomor WhatsApp Anda belum terdaftar di sistem.']);
+            return back()->withErrors(['email' => 'Akun ditemukan, tetapi nomor WhatsApp Anda belum terdaftar.']);
         }
 
         $otp = rand(100000, 999999);
@@ -53,7 +47,7 @@ class PasswordResetLinkController extends Controller
                 'countryCode' => '62',
             ]);
 
-        return redirect()->route('password.reset', ['token' => $otp])
+        return redirect()->route('password.otp.verify')
             ->with('status', 'Kode OTP telah dikirim ke nomor WhatsApp Anda!')
             ->with('email', $request->email);
     }
