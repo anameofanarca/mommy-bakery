@@ -359,4 +359,5 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     } catch (\Exception $e) {
         return "Gagal membuat admin: " . $e->getMessage();
     }
+    });
 });
