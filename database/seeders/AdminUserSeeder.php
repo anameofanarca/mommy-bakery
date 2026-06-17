@@ -14,8 +14,8 @@ class AdminUserSeeder extends Seeder
             ['email' => 'mommyybakery@gmail.com'],
             [
                 'name'              => 'Admin Mommy Bakery',
-                'password'          => Hash::make(env('ADMIN_PASSWORD')),
-                'phone'             => env('ADMIN_PHONE'),
+                'password'          => Hash::make(config('auth.admin_password')),
+                'phone'             => config('auth.admin_phone'),
                 'is_admin'          => true,
                 'email_verified_at' => now(),
             ]
