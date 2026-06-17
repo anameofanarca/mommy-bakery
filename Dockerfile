@@ -35,4 +35,4 @@ COPY ./nginx.conf /etc/nginx/sites-enabled/default
 
 EXPOSE 8080
 
-CMD sh -c "php artisan config:clear && php artisan cache:clear && php artisan optimize:clear && php artisan view:cache && php artisan migrate --force && php artisan db:seed --class=AdminUserSeeder" && php-fpm -D && nginx -g 'daemon off;'
+CMD sh -c "php artisan config:clear && php artisan cache:clear && php artisan optimize:clear && php artisan view:cache && php artisan migrate --force" && php-fpm -D && nginx -g 'daemon off;'
