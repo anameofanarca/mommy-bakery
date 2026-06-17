@@ -13,16 +13,19 @@ class OtpController extends Controller
 {
     private function sendWhatsappOtp($phone, $otp)
     {
-        // Ambil token dari env (ganti disini buat nomornya)
-        $token = env('FONNTE_TOKEN', 'ESmYfYLy4gNFL9Y8Nan7');
+        // Masukkan token
+        $token = 'ESmYfYLy4gNFL9Y8Nan7'; 
 
-        Http::withHeaders([
-            'Authorization' => $token,
-        ])->post('https://api.fonnte.com/send', [
-            'target' => $phone,
-            'message' => "Halo! \n\nKode OTP Mommy Bakery kamu adalah: *" . $otp . "*\n\nKode ini rahasia, berlaku selama 1 menit demi keamanan akun Anda.",
-            'countryCode' => '62',
-        ]);
+        $response = \Illuminate\Support\Facades\Http::asForm() 
+            withHeaders([
+                'Authorization' => $token,
+            ])->post('https://api.fonnte.com/send', [
+                'target' => $phone,
+                'message' => "Halo! \n\nKode OTP Mommy Bakery kamu adalah: *" . $otp . "*\n\nKode ini rahasia, berlaku selama 1 menit.",
+                'countryCode' => '62',
+            ]);
+
+        \Illuminate\Support\Facades\Log::info("Respon Fonnte: " . $response->body());
     }
 
     public function index()
