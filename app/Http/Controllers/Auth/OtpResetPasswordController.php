@@ -51,25 +51,18 @@ class OtpResetPasswordController extends Controller
             ->with('email', $request->email);
     }
 
-    public function showResetForm(Request $request, $token)
+    public function showVerifyForm(Request $request)
     {
-        return view('auth.reset-password', [
-            'token' => $token, 
+        return view('auth.auth-otp', [
             'email' => $request->email ?? session('email')
         ]);
     }
 
-    public function showVerifyForm()
-    {
-        return view('auth.auth-otp');
-    }
-
-    public function verifyOtpAndReset(Request $request)
+    public function verifyOtpOnly(Request $request)
     {
         $request->validate([
             'email' => 'required|email|exists:users,email',
             'token' => 'required|numeric',
-            'password' => 'required|min:8|confirmed',
         ]);
 
         $user = User::where('email', $request->email)
@@ -79,6 +72,34 @@ class OtpResetPasswordController extends Controller
 
         if (!$user) {
             return back()->withErrors(['token' => 'Kode OTP salah atau sudah kedaluwarsa!']);
+        }
+
+        return redirect()->route('password.reset.form', ['token' => $request->token])
+            ->with('email', $request->email);
+    }
+
+    public function showResetForm(Request $request, $token)
+    {
+        return view('auth.reset-password', [
+            'token' => $token, 
+            'email' => $request->email ?? session('email')
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+            'token' => 'required|numeric',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        $user = User::where('email', $request->email)
+                    ->where('otp', $request->token)
+                    ->first();
+
+        if (!$user) {
+            return redirect()->route('password.request')->withErrors(['email' => 'Sesi reset password tidak valid. Silakan minta OTP baru.']);
         }
 
         $user->update([
