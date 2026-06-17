@@ -44,7 +44,6 @@
 
         <form method="POST" action="{{ route('password.otp.submit') }}" class="space-y-6" id="otpForm">
             @csrf
-
             <input type="hidden" name="email" value="{{ $email ?? request()->email ?? session('email') }}">
 
             @if ($errors->any())
