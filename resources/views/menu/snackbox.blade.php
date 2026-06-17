@@ -84,7 +84,9 @@
 
                 $descriptionText = strtolower($product->description ?? '');
 
-                if (str_contains($descriptionText, 'isi 7')) {
+                if (str_contains($descriptionText, 'isi 8')) {
+                    $limit = 8;
+                } elseif (str_contains($descriptionText, 'isi 7')) {
                     $limit = 7;
                 } elseif (str_contains($descriptionText, 'isi 6')) {
                     $limit = 6;
