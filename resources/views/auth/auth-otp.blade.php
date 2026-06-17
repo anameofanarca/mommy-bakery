@@ -40,14 +40,12 @@
 
         <h1 class="text-center text-2xl font-libreCaslon text-darkBrown font-semibold">Mommy Catering</h1>
         <h2 class="text-center text-md font-beVietnam text-primary font-semibold mt-4">Verifikasi Kode OTP</h2>
-        <p class="text-center text-xs text-gray-600 mt-1 mb-6 font-beVietnam leading-relaxed px-2">Masukkan 6 digit kode yang telah kami kirimkan ke akun email Anda.</p>
+        <p class="text-center text-xs text-gray-600 mt-1 mb-6 font-beVietnam leading-relaxed px-2">Masukkan 6 digit kode yang telah kami kirimkan ke akun WhatsApp Anda.</p>
 
         <form method="POST" action="{{ route('password.otp.submit') }}" class="space-y-6" id="otpForm">
             @csrf
 
             <input type="hidden" name="email" value="{{ $email ?? request()->email ?? session('email') }}">
-            <input type="hidden" name="password" value="{{ request()->password ?? session('password') ?? 'password123' }}">
-            <input type="hidden" name="password_confirmation" value="{{ request()->password_confirmation ?? session('password_confirmation') ?? 'password123' }}">
 
             @if ($errors->any())
                 <div class="text-center text-xs text-red-600 font-beVietnam bg-red-100 p-2 rounded-lg">
@@ -129,12 +127,13 @@
     }, 1000);
 
     resendBtn.addEventListener('click', function() {
-        fetch("{{ route('otp.send') }}", {
+        fetch("{{ route('password.email') }}", {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({ email: "{{ $email ?? request()->email ?? session('email') }}" })
         }).then(() => {
             alert('Kode OTP baru telah dikirim!');
             window.location.reload();
