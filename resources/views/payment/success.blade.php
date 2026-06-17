@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pesanan Berhasil - Mommy Catering & Bakery</title>
 
-    @vite(['resources/css/app.css', 'resources/css/menu.css'])
+    @vite(['resources/css/app.css', 'resources/css/menu.css', 'resources/js/app.js'])
 </head>
 <body>
     @include('layouts.header')
