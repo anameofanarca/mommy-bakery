@@ -89,8 +89,6 @@ class OtpResetPasswordController extends Controller
 
     public function resetPassword(Request $request)
     {
-        dd($request->all()); 
-
         $request->validate([
             'email' => 'required|email|exists:users,email',
             'token' => 'required|numeric',
@@ -104,9 +102,9 @@ class OtpResetPasswordController extends Controller
         if (!$user) {
             return redirect()->route('password.request')->withErrors(['email' => 'Sesi reset password tidak valid. Silakan minta OTP baru.']);
         }
-
+        
         $user->update([
-            'password' => $request->password,
+            'password' => Hash::make($request->password),
             'otp' => null,
             'otp_expires_at' => null,
         ]);
