@@ -4,13 +4,27 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Notifications\SendOTPNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class OtpController extends Controller
 {
+    private function sendWhatsappOtp($phone, $otp)
+    {
+        // Ambil token dari env (ganti disini buat nomornya)
+        $token = env('FONNTE_TOKEN', '7HCXUNskAnrkbA3REbRsbpR7F');
+
+        Http::withHeaders([
+            'Authorization' => $token,
+        ])->post('https://api.fonnte.com/send', [
+            'target' => $phone,
+            'message' => "Halo! \n\nKode OTP Mommy Bakery kamu adalah: *" . $otp . "*\n\nKode ini rahasia, berlaku selama 1 menit demi keamanan akun Anda.",
+            'countryCode' => '62',
+        ]);
+    }
+
     public function index()
     {
         $userId = session('otp_user_id');
@@ -23,11 +37,7 @@ class OtpController extends Controller
 
         if (!$user) {
             session()->forget('otp_user_id');
-
-            return redirect()->route('login')
-                ->withErrors([
-                    'email' => 'Akun tidak ditemukan.',
-                ]);
+            return redirect()->route('login')->withErrors(['email' => 'Akun tidak ditemukan.']);
         }
 
         $otp = rand(100000, 999999);
@@ -37,7 +47,7 @@ class OtpController extends Controller
             'otp_expires_at' => Carbon::now()->addMinutes(1),
         ]);
 
-        $user->notify(new SendOTPNotification($otp));
+        $this->sendWhatsappOtp($user->phone, $otp);
 
         return view('auth.verify-otplogin');
     }
@@ -58,11 +68,7 @@ class OtpController extends Controller
 
         if (!$user) {
             session()->forget('otp_user_id');
-
-            return redirect()->route('login')
-                ->withErrors([
-                    'email' => 'Akun tidak ditemukan.',
-                ]);
+            return redirect()->route('login')->withErrors(['email' => 'Akun tidak ditemukan.']);
         }
 
         if (
@@ -81,18 +87,13 @@ class OtpController extends Controller
         ]);
 
         Auth::login($user);
-
         session()->forget('otp_user_id');
 
         if ($user->is_admin) {
-            return redirect()
-                ->route('admin.dashboard')
-                ->with('success', 'Login admin berhasil!');
+            return redirect()->route('admin.dashboard')->with('success', 'Login admin berhasil!');
         }
 
-        return redirect()
-            ->route('welcome')
-            ->with('success', 'Login berhasil!');
+        return redirect()->route('welcome')->with('success', 'Login berhasil!');
     }
 
     public function resend()
@@ -100,19 +101,14 @@ class OtpController extends Controller
         $userId = session('otp_user_id');
 
         if (!$userId) {
-            return response()->json([
-                'message' => 'Unauthorized',
-            ], 401);
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
 
         $user = User::find($userId);
 
         if (!$user) {
             session()->forget('otp_user_id');
-
-            return response()->json([
-                'message' => 'Akun tidak ditemukan.',
-            ], 404);
+            return response()->json(['message' => 'Akun tidak ditemukan.'], 404);
         }
 
         $otp = rand(100000, 999999);
@@ -122,10 +118,9 @@ class OtpController extends Controller
             'otp_expires_at' => Carbon::now()->addMinutes(1),
         ]);
 
-        $user->notify(new SendOTPNotification($otp));
+        // RESEND
+        $this->sendWhatsappOtp($user->phone, $otp);
 
-        return response()->json([
-            'message' => 'OTP dikirim ulang.',
-        ]);
+        return response()->json(['message' => 'OTP dikirim ulang via WhatsApp.']);
     }
 }
