@@ -114,4 +114,12 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Credentials from Railway Environment
+    |--------------------------------------------------------------------------
+    */
+    'admin_password' => env('ADMIN_PASSWORD'),
+    'admin_phone' => env('ADMIN_PHONE'),
+
 ];
