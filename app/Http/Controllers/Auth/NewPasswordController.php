@@ -13,20 +13,41 @@ use Illuminate\View\View;
 
 class NewPasswordController extends Controller
 {
-    /**
-     * Display the password reset view.
-     */
-    public function create(Request $request): View
+    public function showOtpForm(): View
+    {
+        return view('auth.verify-otp-password', [
+            'email' => session('email')
+        ]);
+    }
+
+    public function verifyOtp(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'email' => ['required', 'email', 'exists:users,email'],
+            'otp' => ['required', 'numeric'],
+        ]);
+
+        $user = User::where('email', $request->email)
+                    ->where('otp', $request->otp)
+                    ->where('otp_expires_at', '>', Carbon::now())
+                    ->first();
+
+        if (!$user) {
+            return back()->withInput()->withErrors(['otp' => 'Kode OTP salah atau sudah kedaluwarsa!']);
+        }
+
+        return redirect()->route('password.reset', ['token' => $request->otp])
+            ->with('email', $request->email);
+    }
+
+    public function create(Request $request, $token): View
     {
         return view('auth.reset-password', [
-            'token' => $request->route('token'), 
+            'token' => $token, 
             'email' => $request->email ?? session('email')
         ]);
     }
 
-    /**
-     * Handle an incoming new password request.
-     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -37,11 +58,10 @@ class NewPasswordController extends Controller
 
         $user = User::where('email', $request->email)
                     ->where('otp', $request->token)
-                    ->where('otp_expires_at', '>', Carbon::now())
                     ->first();
 
         if (!$user) {
-            return back()->withErrors(['token' => 'Kode OTP salah atau sudah kedaluwarsa!']);
+            return redirect()->route('password.request')->withErrors(['email' => 'Sesi reset password tidak valid. Silakan urus kembali.']);
         }
 
         $user->update([
@@ -50,6 +70,6 @@ class NewPasswordController extends Controller
             'otp_expires_at' => null,
         ]);
 
-        return redirect()->route('login')->with('status', 'Password berhasil diubah! Silakan login memakai password baru.');
+        return redirect()->route('login')->with('status', 'Password berhasil diubah! Silakan login.');
     }
 }
