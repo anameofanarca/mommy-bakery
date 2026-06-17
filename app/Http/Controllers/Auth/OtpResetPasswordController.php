@@ -89,6 +89,8 @@ class OtpResetPasswordController extends Controller
 
     public function resetPassword(Request $request)
     {
+        dd($request->all()); 
+
         $request->validate([
             'email' => 'required|email|exists:users,email',
             'token' => 'required|numeric',
