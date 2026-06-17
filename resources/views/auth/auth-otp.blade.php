@@ -45,6 +45,8 @@
         <form method="POST" action="{{ route('password.otp.submit') }}" class="space-y-6" id="otpForm">
             @csrf
 
+            <input type="hidden" name="email" value="{{ request()->email ?? session('email') }}">
+
             @if ($errors->any())
                 <div class="text-center text-xs text-red-600 font-beVietnam">
                     {{ $errors->first() }}
@@ -126,7 +128,7 @@
         }
     }, 1000);
 
-    // Handler Kirim Ulang OTP via Ajax sederhana
+    // Handler Kirim Ulang OTP
     resendBtn.addEventListener('click', function() {
         fetch("{{ route('otp.send') }}", {
             method: 'POST',
