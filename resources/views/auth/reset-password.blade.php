@@ -107,8 +107,8 @@
             <form method="POST" action="{{ route('password.store') }}" class="space-y-4 text-left">
                 @csrf
 
-                <input type="hidden" name="token" value="{{ $request->route('token') ?? 'dummy-token' }}">
-                <input type="hidden" name="email" value="{{ old('email', $request->email ?? '') }}">
+                <input type="hidden" name="token" value="{{ $token ?? '' }}">
+                <input type="hidden" name="email" value="{{ old('email', $email ?? '') }}">
 
                 <div>
                     <label for="password" class="text-sm font-beVietnam text-textDark block mb-1">
