@@ -46,7 +46,8 @@ class OtpResetPasswordController extends Controller
                 'countryCode' => '62',
             ]);
 
-        return redirect()->route('password.reset', ['token' => $otp])
+        // FIX: Diarahkan ke rute khusus verifikasi OTP kustom milik kita sendiri
+        return redirect()->route('password.otp.verify', ['token' => $otp])
             ->with('status', 'Kode OTP telah dikirim ke nomor WhatsApp Anda!')
             ->with('email', $request->email);
     }
