@@ -37,7 +37,8 @@ class OtpResetPasswordController extends Controller
 
         $token = 'ESmYfYLy4gNFL9Y8Nan7'; 
         
-        Http::asForm()
+        // Membatasi timeout kirim WA selama 7 detik agar tidak loading selamanya jika API lambat
+        Http::timeout(7)->asForm()
             ->withHeaders([
                 'Authorization' => $token,
             ])->post('https://api.fonnte.com/send', [
@@ -46,10 +47,9 @@ class OtpResetPasswordController extends Controller
                 'countryCode' => '62',
             ]);
 
-        // FIX: Diarahkan ke rute khusus verifikasi OTP kustom milik kita sendiri
-        return redirect()->route('password.otp.verify', ['token' => $otp])
-            ->with('status', 'Kode OTP telah dikirim ke nomor WhatsApp Anda!')
-            ->with('email', $request->email);
+        // FIX: Email dioper via query parameter URL agar tidak mudah hilang saat halaman ter-refresh
+        return redirect()->route('password.otp.verify', ['token' => $otp, 'email' => $request->email])
+            ->with('status', 'Kode OTP telah dikirim ke nomor WhatsApp Anda!');
     }
 
     public function showVerifyForm(Request $request)
@@ -75,8 +75,8 @@ class OtpResetPasswordController extends Controller
             return back()->withErrors(['token' => 'Kode OTP salah atau sudah kedaluwarsa!']);
         }
 
-        return redirect()->route('password.reset.form', ['token' => $request->token])
-            ->with('email', $request->email);
+        // FIX: Email dikirim lewat parameter URL agar aman mendarat di halaman buat password baru
+        return redirect()->route('password.reset.form', ['token' => $request->token, 'email' => $request->email]);
     }
 
     public function showResetForm(Request $request, $token)
@@ -104,7 +104,7 @@ class OtpResetPasswordController extends Controller
         }
 
         $user->update([
-            'password' => Hash::make($request->password),
+            'password' => $request->password,
             'otp' => null,
             'otp_expires_at' => null,
         ]);
