@@ -115,6 +115,17 @@
             </div>
         @endif
 
+        <!-- ERROR MESSAGE -->
+        @if ($errors->any())
+            <div class="mb-4 px-4 py-3 rounded-lg bg-red-100 text-red-700 text-sm font-beVietnam">
+                <ul class="list-disc list-inside">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('login') }}" class="space-y-4">
             @csrf
 
