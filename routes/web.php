@@ -284,11 +284,11 @@ Route::middleware('auth')->group(function () {
 Route::get('/forgot-password', [OtpResetPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/forgot-password', [OtpResetPasswordController::class, 'sendOtp'])->name('password.email');
 
-Route::get('/password/reset', [OtpResetPasswordController::class, 'showVerifyForm'])->name('password.reset');
+Route::get('/password/reset/{token?}', [OtpResetPasswordController::class, 'showVerifyForm'])->name('password.reset');
 Route::post('/password/otp-submit', [OtpResetPasswordController::class, 'verifyOtpOnly'])->name('password.otp.submit');
 
-Route::get('/password/reset/{token}', [OtpResetPasswordController::class, 'showResetForm'])->name('password.reset.form');
-Route::post('/password/reset', [OtpResetPasswordController::class, 'resetPassword'])->name('password.update');
+Route::get('/password/create-new/{token}', [OtpResetPasswordController::class, 'showResetForm'])->name('password.reset.form');
+Route::post('/password/update-now', [OtpResetPasswordController::class, 'resetPassword'])->name('password.update');
 
 // ==========================================
 // ADMIN
