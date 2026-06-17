@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Notifications\SendOTPNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 
 class OtpResetPasswordController extends Controller
 {
-    // 1. Fungsi untuk generate dan kirim OTP ke email
+    // generate dan kirim OTP ke WhatsApp
     public function sendOtp(Request $request)
     {
         $request->validate([
@@ -19,35 +19,38 @@ class OtpResetPasswordController extends Controller
         ]);
 
         $user = User::where('email', $request->email)->first();
-
-        // Generate 6 digit angka acak
         $otp = rand(100000, 999999);
 
-        // Simpan OTP dan masa berlaku (5 menit) ke database SQLite
         $user->update([
             'otp' => $otp,
             'otp_expires_at' => Carbon::now()->addMinutes(5),
         ]);
 
-        // Kirim notifikasi email (saat ini masih masuk ke storage/logs/laravel.log)
-        $user->notify(new SendOTPNotification($otp));
+        $token = env('FONNTE_TOKEN', 'MASUKKAN_TOKEN_FONNTE_KAMU_DISINI');
+        
+        Http::withHeaders([
+            'Authorization' => $token,
+        ])->post('https://api.fonnte.com/send', [
+            'target' => $user->phone,
+            'message' => "Mommy Bakery Security!\n\nKami menerima permintaan reset password untuk akun Anda. Kode OTP konfirmasi Anda adalah: *" . $otp . "*\n\nJangan berikan kode ini kepada siapapun. Berlaku 5 menit.",
+            'countryCode' => '62',
+        ]);
 
         return response()->json([
-            'message' => 'Kode OTP telah dikirim ke email Anda. Silakan cek kotak masuk/logs.',
+            'message' => 'Kode OTP telah dikirim ke nomor WhatsApp Anda yang terdaftar.',
             'email' => $request->email
         ]);
     }
 
-    // 2. Fungsi untuk verifikasi OTP dan ganti password baru
+    // verifikasi OTP dan ganti password baru
     public function verifyOtpAndReset(Request $request)
     {
         $request->validate([
             'email' => 'required|email|exists:users,email',
             'otp' => 'required|numeric',
-            'password' => 'required|min:8|confirmed', // butuh input 'password_confirmation' di frontend
+            'password' => 'required|min:8|confirmed',
         ]);
 
-        // Cari user yang email, OTP cocok, dan OTP-nya belum expired
         $user = User::where('email', $request->email)
                     ->where('otp', $request->otp)
                     ->where('otp_expires_at', '>', Carbon::now())
@@ -59,7 +62,6 @@ class OtpResetPasswordController extends Controller
             ], 422);
         }
 
-        // OTP Valid -> Update password baru & bersihkan kolom OTP
         $user->update([
             'password' => Hash::make($request->password),
             'otp' => null,
