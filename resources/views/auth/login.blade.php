@@ -120,11 +120,11 @@
 
             <div>
                 <label class="text-sm font-beVietnam text-textDark">
-                    Email 
+                    Email atau No. WhatsApp
                 </label>
 
-                <input type="email" name="email" required
-                    placeholder="Masukkan email"
+                <input type="text" name="login" value="{{ old('login') }}" required
+                    placeholder="Masukkan email atau nomor WhatsApp"
                     class="w-full mt-1 px-4 py-3 rounded-lg border border-gray-300 bg-[#fffaf4]
                     font-beVietnam text-sm focus:outline-none focus:ring-2 focus:ring-primary">
             </div>
