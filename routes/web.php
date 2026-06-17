@@ -281,8 +281,14 @@ Route::middleware('auth')->group(function () {
 // OTP RESET PASSWORD
 // ==========================================
 
-Route::post('/otp/send', [OtpResetPasswordController::class, 'sendOtp'])->name('otp.send');
-Route::post('/otp/verify', [OtpResetPasswordController::class, 'verifyOtpAndReset'])->name('otp.verify');
+Route::get('/otp/verify', [OtpResetPasswordController::class, 'showVerifyForm'])
+    ->name('password.otp.verify'); 
+
+Route::post('/otp/send', [OtpResetPasswordController::class, 'sendOtp'])
+    ->name('otp.send');
+
+Route::post('/otp/verify', [OtpResetPasswordController::class, 'verifyOtpAndReset'])
+    ->name('password.otp.submit');
 
 // ==========================================
 // ADMIN
