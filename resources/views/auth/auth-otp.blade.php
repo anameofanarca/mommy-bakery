@@ -62,7 +62,7 @@
                 <input type="text" maxlength="1" class="w-12 h-12 text-center text-lg font-bold rounded-lg border border-gray-300 bg-[#fffaf4] text-darkBrown focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition shadow-sm">
             </div>
             
-            <input type="hidden" name="otp" id="otp_code">
+            <input type="hidden" name="token" id="otp_code">
 
             <div class="text-center font-beVietnam text-xs text-gray-500">
                 <div id="timer-container">
@@ -103,14 +103,12 @@
         });
     });
 
-    // Satukan nilai input tepat sebelum form dikirim
     form.addEventListener('submit', function() {
         let code = "";
         inputs.forEach(input => code += input.value);
         hiddenInput.value = code;
     });
 
-    // Logika Timer Mundur
     let time = 58;
     const timerDisplay = document.getElementById('countdown-timer');
     const timerContainer = document.getElementById('timer-container');
@@ -128,7 +126,6 @@
         }
     }, 1000);
 
-    // Handler Kirim Ulang OTP
     resendBtn.addEventListener('click', function() {
         fetch("{{ route('otp.send') }}", {
             method: 'POST',
