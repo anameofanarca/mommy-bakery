@@ -282,7 +282,7 @@ Route::get('/password/verify-otp/{token?}', [OtpResetPasswordController::class, 
 Route::post('/password/otp-submit', [OtpResetPasswordController::class, 'verifyOtpOnly'])->name('password.otp.submit');
 
 Route::get('/password/create-new/{token}', [OtpResetPasswordController::class, 'showResetForm'])->name('password.reset.form');
-Route::post('/password/update-now', [OtpResetPasswordController::class, 'resetPassword'])->name('password.update');
+Route::post('/password/update-now', [OtpResetPasswordController::class, 'resetPassword'])->name('password.update.otp');
 
 // ==========================================
 // ADMIN
