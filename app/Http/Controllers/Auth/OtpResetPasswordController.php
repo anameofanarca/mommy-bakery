@@ -61,7 +61,7 @@ class OtpResetPasswordController extends Controller
 
     public function showVerifyForm()
     {
-    return view('auth-otp.blade.php');
+        return view('auth.auth-otp');
     }
 
     public function verifyOtpAndReset(Request $request)
