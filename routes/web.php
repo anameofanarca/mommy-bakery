@@ -170,7 +170,7 @@ Route::post('/catering/store', [CateringController::class, 'store'])->name('cate
 Route::view('/about', 'about')->name('about');
 
 // ==========================================
-// AUTH & OTP GUEST
+// AUTH GUEST (REGISTER & LOGIN SAJA)
 // ==========================================
 
 Route::middleware('guest')->group(function () {
@@ -179,15 +179,9 @@ Route::middleware('guest')->group(function () {
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
-
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
-
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
-    Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 });
 
-// OTP login dibuat di luar guest supaya tetap bisa dipakai saat proses login OTP.
+// OTP login biasa
 Route::get('otp', [OtpController::class, 'index'])->name('otp');
 Route::post('/otp/verify-login', [OtpController::class, 'verify'])->name('otp.verify-login');
 Route::post('/otp/resend', [OtpController::class, 'resend'])->name('otp.resend');
@@ -278,13 +272,13 @@ Route::middleware('auth')->group(function () {
 });
 
 // ==========================================
-// OTP RESET PASSWORD
+// KUSTOM OTP RESET PASSWORD
 // ==========================================
 
 Route::get('/forgot-password', [OtpResetPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/forgot-password', [OtpResetPasswordController::class, 'sendOtp'])->name('password.email');
 
-Route::get('/password/reset/{token?}', [OtpResetPasswordController::class, 'showVerifyForm'])->name('password.reset');
+Route::get('/password/verify-otp/{token?}', [OtpResetPasswordController::class, 'showVerifyForm'])->name('password.otp.verify');
 Route::post('/password/otp-submit', [OtpResetPasswordController::class, 'verifyOtpOnly'])->name('password.otp.submit');
 
 Route::get('/password/create-new/{token}', [OtpResetPasswordController::class, 'showResetForm'])->name('password.reset.form');
@@ -337,10 +331,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/orders/export', [AdminOrderController::class, 'export'])->name('orders.export');
     Route::get('/orders/{id}', [AdminOrderController::class, 'show'])->name('orders.show');
 
-    Route::patch('/orders/{id}/mark-paid', [AdminOrderController::class, 'markPaid'])->name('orders.markPaid');
-    Route::patch('/orders/{id}/mark-processing', [AdminOrderController::class, 'markProcessing'])->name('orders.markProcessing');
-    Route::patch('/orders/{id}/mark-completed', [AdminOrderController::class, 'markCompleted'])->name('orders.markCompleted');
-    Route::patch('/orders/{id}/cancel', [AdminOrderController::class, 'cancel'])->name('orders.cancel');
+    $actions = ['mark-paid' => 'markPaid', 'mark-processing' => 'markProcessing', 'mark-completed' => 'markCompleted', 'cancel' => 'cancel'];
+    foreach ($actions as $url => $method) {
+        Route::patch("/orders/{id}/{$url}", [AdminOrderController::class, $method])->name("orders.{$method}");
+    }
 
     Route::get('/product', [AdminProductController::class, 'index'])->name('product');
     Route::get('/product/create', [AdminProductController::class, 'create'])->name('product.create');
@@ -348,5 +342,4 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/product/{product}/edit', [AdminProductController::class, 'edit'])->name('product.edit');
     Route::patch('/product/{product}', [AdminProductController::class, 'update'])->name('product.update');
     Route::delete('/product/{product}', [AdminProductController::class, 'destroy'])->name('product.destroy');
-
 });
