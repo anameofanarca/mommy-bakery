@@ -42,8 +42,15 @@
         <h2 class="text-center text-md font-beVietnam text-primary font-semibold mt-4">Verifikasi Kode OTP</h2>
         <p class="text-center text-xs text-gray-600 mt-1 mb-6 font-beVietnam leading-relaxed px-2">Masukkan 6 digit kode yang telah kami kirimkan ke akun email Anda.</p>
 
-        <form method="POST" action="/otp-verify" class="space-y-6">
+        <form method="POST" action="{{ route('password.otp.submit') }}" class="space-y-6" id="otpForm">
             @csrf
+
+            @if ($errors->any())
+                <div class="text-center text-xs text-red-600 font-beVietnam">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
             <div class="flex justify-between gap-2 px-2" id="otp-inputs">
                 <input type="text" maxlength="1" class="w-12 h-12 text-center text-lg font-bold rounded-lg border border-gray-300 bg-[#fffaf4] text-darkBrown focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition shadow-sm">
                 <input type="text" maxlength="1" class="w-12 h-12 text-center text-lg font-bold rounded-lg border border-gray-300 bg-[#fffaf4] text-darkBrown focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition shadow-sm">
@@ -52,12 +59,14 @@
                 <input type="text" maxlength="1" class="w-12 h-12 text-center text-lg font-bold rounded-lg border border-gray-300 bg-[#fffaf4] text-darkBrown focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition shadow-sm">
                 <input type="text" maxlength="1" class="w-12 h-12 text-center text-lg font-bold rounded-lg border border-gray-300 bg-[#fffaf4] text-darkBrown focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition shadow-sm">
             </div>
-            <input type="hidden" name="otp_code" id="otp_code">
+            
+            <input type="hidden" name="otp" id="otp_code">
 
             <div class="text-center font-beVietnam text-xs text-gray-500">
                 <div id="timer-container">
                     <span>⏱ Kirim ulang kode dalam </span><span id="countdown-timer" class="font-semibold text-primary">00:58</span>
                 </div>
+             
                 <button type="button" id="btn-resend" class="hidden text-primary font-semibold hover:underline bg-transparent border-none outline-none cursor-pointer">Kirim ulang kode</button>
             </div>
 
@@ -74,16 +83,16 @@
 </div>
 
 <script>
-    // Logika Auto-Tab Input OTP & Penggabungan data
     const inputs = document.querySelectorAll('#otp-inputs input');
     const hiddenInput = document.getElementById('otp_code');
+    const form = document.getElementById('otpForm');
 
     inputs.forEach((input, index) => {
         input.addEventListener('input', (e) => {
+            input.value = input.value.replace(/[^0-9]/g, ''); 
             if (input.value.length === 1 && index < inputs.length - 1) {
                 inputs[index + 1].focus();
             }
-            updateHiddenInput();
         });
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && input.value.length === 0 && index > 0) {
@@ -92,13 +101,14 @@
         });
     });
 
-    function updateHiddenInput() {
+    // Satukan nilai input tepat sebelum form dikirim
+    form.addEventListener('submit', function() {
         let code = "";
         inputs.forEach(input => code += input.value);
         hiddenInput.value = code;
-    }
+    });
 
-    // Logika Timer Mundur (58 Detik)
+    // Logika Timer Mundur
     let time = 58;
     const timerDisplay = document.getElementById('countdown-timer');
     const timerContainer = document.getElementById('timer-container');
@@ -115,6 +125,20 @@
             resendBtn.classList.remove('hidden');
         }
     }, 1000);
+
+    // Handler Kirim Ulang OTP via Ajax sederhana
+    resendBtn.addEventListener('click', function() {
+        fetch("{{ route('otp.send') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            }
+        }).then(() => {
+            alert('Kode OTP baru telah dikirim!');
+            window.location.reload();
+        });
+    });
 </script>
 </body>
 </html>
