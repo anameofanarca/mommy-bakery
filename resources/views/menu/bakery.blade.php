@@ -15,7 +15,8 @@
         Menu Kami
     </h1>
 
-   <div class="flex flex-wrap gap-2 text-xs font-medium mb-8">
+   <div class="mb-8">
+        <div class="flex flex-wrap gap-2 text-xs font-medium">
             <a href="{{ url('/menu') }}" class="bg-[#EFE7D8] text-[#4A2C2A] hover:bg-[#e4dac6] px-4 py-2 rounded-md transition-colors inline-block text-center">Semua</a>
             <a href="{{ url('/menu/nasibox') }}" class="bg-[#EFE7D8] text-[#4A2C2A] hover:bg-[#e4dac6] px-4 py-2 rounded-md transition-colors inline-block text-center">Nasi Box</a>
             <a href="{{ url('/menu/tumpeng') }}" class="bg-[#EFE7D8] text-[#4A2C2A] hover:bg-[#e4dac6] px-4 py-2 rounded-md transition-colors inline-block text-center">Tumpeng</a>
