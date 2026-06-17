@@ -104,7 +104,7 @@
                 Atur Ulang Kata Sandi
             </h1>
             
-            <form method="POST" action="{{ route('password.store') }}" class="space-y-4 text-left">
+            <form method="POST" action="{{ route('password.update') }}" class="space-y-4 text-left">
                 @csrf
 
                 <input type="hidden" name="token" value="{{ $token ?? '' }}">
