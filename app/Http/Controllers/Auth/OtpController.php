@@ -14,7 +14,7 @@ class OtpController extends Controller
     private function sendWhatsappOtp($phone, $otp)
     {
         // Ambil token dari env (ganti disini buat nomornya)
-        $token = env('FONNTE_TOKEN', '7HCXUNskAnrkbA3REbRsbpR7F');
+        $token = env('FONNTE_TOKEN', 'ESmYfYLy4gNFL9Y8Nan7');
 
         Http::withHeaders([
             'Authorization' => $token,
