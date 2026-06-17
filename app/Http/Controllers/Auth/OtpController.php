@@ -16,8 +16,8 @@ class OtpController extends Controller
         // Masukkan token
         $token = 'ESmYfYLy4gNFL9Y8Nan7'; 
 
-        $response = \Illuminate\Support\Facades\Http::asForm() 
-            withHeaders([
+        $response = \Illuminate\Support\Facades\Http::asForm()
+            ->withHeaders([
                 'Authorization' => $token,
             ])->post('https://api.fonnte.com/send', [
                 'target' => $phone,
