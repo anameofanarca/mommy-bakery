@@ -343,21 +343,4 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::patch('/product/{product}', [AdminProductController::class, 'update'])->name('product.update');
     Route::delete('/product/{product}', [AdminProductController::class, 'destroy'])->name('product.destroy');
 
-    Route::get('/buat-admin-rahasia-mommy', function () {
-    try {
-        \App\Models\User::updateOrCreate(
-            ['email' => 'mommyybakery@gmail.com'],
-            [
-                'name'              => 'Admin Mommy Bakery',
-                'password'          => \Illuminate\Support\Facades\Hash::make(config('auth.admin_password')),
-                'phone'             => config('auth.admin_phone'),
-                'is_admin'          => true,
-                'email_verified_at' => now(),
-            ]
-        );
-        return "Akun Admin Berhasil Dibuat Permanen Menggunakan Data Variabel Railway!";
-    } catch (\Exception $e) {
-        return "Gagal membuat admin: " . $e->getMessage();
-    }
-    });
 });
