@@ -45,10 +45,12 @@
         <form method="POST" action="{{ route('password.otp.submit') }}" class="space-y-6" id="otpForm">
             @csrf
 
-            <input type="hidden" name="email" value="{{ request()->email ?? session('email') }}">
+            <input type="hidden" name="email" value="{{ $email ?? request()->email ?? session('email') }}">
+            <input type="hidden" name="password" value="{{ request()->password ?? session('password') ?? 'password123' }}">
+            <input type="hidden" name="password_confirmation" value="{{ request()->password_confirmation ?? session('password_confirmation') ?? 'password123' }}">
 
             @if ($errors->any())
-                <div class="text-center text-xs text-red-600 font-beVietnam">
+                <div class="text-center text-xs text-red-600 font-beVietnam bg-red-100 p-2 rounded-lg">
                     {{ $errors->first() }}
                 </div>
             @endif
