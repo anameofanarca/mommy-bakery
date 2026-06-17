@@ -26,15 +26,16 @@ class OtpResetPasswordController extends Controller
             'otp_expires_at' => Carbon::now()->addMinutes(5),
         ]);
 
-        $token = env('FONNTE_TOKEN', 'MASUKKAN_TOKEN_FONNTE_KAMU_DISINI');
+        $token = 'ESmYfYLy4gNFL9Y8Nan7'; 
         
-        Http::withHeaders([
-            'Authorization' => $token,
-        ])->post('https://api.fonnte.com/send', [
-            'target' => $user->phone,
-            'message' => "Mommy Bakery Security!\n\nKami menerima permintaan reset password untuk akun Anda. Kode OTP konfirmasi Anda adalah: *" . $otp . "*\n\nJangan berikan kode ini kepada siapapun. Berlaku 5 menit.",
-            'countryCode' => '62',
-        ]);
+        Http::asForm()
+            ->withHeaders([
+                'Authorization' => $token,
+            ])->post('https://api.fonnte.com/send', [
+                'target' => $user->phone,
+                'message' => "Mommy Bakery Security!\n\nKami menerima permintaan reset password untuk akun Anda. Kode OTP konfirmasi Anda adalah: *" . $otp . "*\n\nJangan berikan kode ini kepada siapapun. Berlaku 5 menit.",
+                'countryCode' => '62',
+            ]);
 
         return response()->json([
             'message' => 'Kode OTP telah dikirim ke nomor WhatsApp Anda yang terdaftar.',
