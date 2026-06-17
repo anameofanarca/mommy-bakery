@@ -104,12 +104,11 @@
                 Atur Ulang Kata Sandi
             </h1>
             
-            <form method="POST" action="{{ route('password.update') }}" class="space-y-4 text-left">
+            <form method="POST" action="{{ route('password.update.otp') }}" class="space-y-4 text-left">
                 @csrf
-                @method('PUT')
 
-                <input type="hidden" name="token" value="{{ $token ?? '' }}">
-                <input type="hidden" name="email" value="{{ old('email', $email ?? '') }}">
+                <input type="hidden" name="token" value="{{ $token ?? request()->route('token') }}">
+                <input type="hidden" name="email" value="{{ request()->query('email', $email ?? '') }}">
 
                 <div>
                     <label for="password" class="text-sm font-beVietnam text-textDark block mb-1">
