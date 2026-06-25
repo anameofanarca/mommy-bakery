@@ -14,7 +14,7 @@ class OtpController extends Controller
     private function sendWhatsappOtp($phone, $otp)
     {
         // Masukkan token
-        $token = 'ESmYfYLy4gNFL9Y8Nan7'; 
+        $token = 'Z6z78PMHTX2grn9G5ZB4'; 
 
         $response = \Illuminate\Support\Facades\Http::asForm()
             ->withHeaders([
